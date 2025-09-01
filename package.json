@@ -1,6 +1,8 @@
 {
     "name": "chat-app",
-    "private": true,
+    "author": "xcfio",
+    "homepage": "https://github.com/xcfio/chat-app#readme",
+    "license": "MIT",
     "scripts": {
         "build": "turbo run build",
         "dev": "turbo run dev",
@@ -8,10 +10,18 @@
         "fmt": "prettier --config=.prettierrc --write .",
         "test": "turbo run check-types"
     },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/xcfio/chat-app"
+    },
+    "bugs": {
+        "url": "https://github.com/xcfio/chat-app/issues",
+        "email": "omarfaruksxp@gmail.com"
+    },
     "devDependencies": {
         "prettier": "^3.6.2",
         "turbo": "^2.5.6",
-        "test": "5.9.2"
+        "typescript": "5.9.2"
     },
     "packageManager": "pnpm@10.0.0",
     "engines": {
