@@ -1,4 +1,11 @@
+import { Server as SocketIOServer } from "socket.io"
 import { Type } from "@sinclair/typebox"
+
+declare module "fastify" {
+    interface FastifyInstance {
+        io: SocketIOServer
+    }
+}
 
 declare global {
     namespace NodeJS {
@@ -7,6 +14,17 @@ declare global {
             DATABASE_URI: string
             COOKIE_SECRET: string
             JWT_SECRET: string
+
+            // Discord auth
+            DISCORD_CLIENT_ID: string
+            DISCORD_CLIENT_SECRET: string
+
+            // Github auth
+            GITHUB_CLIENT_ID: string
+            GITHUB_CLIENT_SECRET: string
+            // Google auth
+            GOOGLE_CLIENT_ID: string
+            GOOGLE_CLIENT_SECRET: string
         }
     }
 }

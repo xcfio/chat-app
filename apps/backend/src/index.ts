@@ -1,14 +1,14 @@
 import { isFastifyError, ValidationErrorHandler } from "./function"
-
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox"
+import { fastifyOauth2 } from "@fastify/oauth2"
 import RateLimit from "@fastify/rate-limit"
+import fastifyIO from "fastify-socket.io"
 import Cookie from "@fastify/cookie"
-import OAuth2, { fastifyOauth2 } from "@fastify/oauth2"
 import Cors from "@fastify/cors"
 import JTW from "@fastify/jwt"
 import Fastify from "fastify"
 
-const main = async () => {
+export async function main() {
     const isDevelopment = process.env.NODE_ENV === "development"
     const fastify = Fastify({
         trustProxy: true,
@@ -30,52 +30,53 @@ const main = async () => {
         }
     })
 
+    await fastify.register(fastifyIO)
     await fastify.register(Cookie, { secret: process.env.COOKIE_SECRET })
     await fastify.register(JTW, { cookie: { cookieName: "auth", signed: true }, secret: process.env.COOKIE_SECRET })
     await fastify.register(Cors, { methods: ["GET", "POST", "PUT"], origin: (origin, cb) => cb(null, true) })
     await fastify.register(fastifyOauth2, {
-        name: "discordOAuth2",
-        scope: ["identify", "email"],
+        name: "discord",
         credentials: {
             client: {
-                id: "<DISCORD_CLIENT_ID>",
-                secret: "<DISCORD_CLIENT_SECRET>"
+                id: process.env.DISCORD_CLIENT_ID,
+                secret: process.env.DISCORD_CLIENT_SECRET
             },
             auth: fastifyOauth2.DISCORD_CONFIGURATION
         },
         startRedirectPath: "/login/discord",
-        callbackUri: "http://localhost:3000/login/discord/callback"
+        callbackUri: "/login/discord/callback",
+        scope: ["identify", "email"]
     })
 
     await fastify.register(fastifyOauth2, {
-        name: "githubOAuth2",
-        scope: ["user:email"],
+        name: "github",
         credentials: {
             client: {
-                id: "<GITHUB_CLIENT_ID>",
-                secret: "<GITHUB_CLIENT_SECRET>"
+                id: process.env.GITHUB_CLIENT_ID,
+                secret: process.env.GITHUB_CLIENT_SECRET
             },
             auth: fastifyOauth2.GITHUB_CONFIGURATION
         },
         startRedirectPath: "/login/github",
-        callbackUri: "http://localhost:3000/login/github/callback"
+        callbackUri: "/login/github/callback",
+        scope: ["user:email", "read:user"]
     })
 
     await fastify.register(fastifyOauth2, {
-        name: "googleOAuth2",
-        scope: ["profile", "email"],
+        name: "google",
         credentials: {
             client: {
-                id: "<GOOGLE_CLIENT_ID>",
-                secret: "<GOOGLE_CLIENT_SECRET>"
+                id: process.env.GOOGLE_CLIENT_ID,
+                secret: process.env.GOOGLE_CLIENT_SECRET
             },
             auth: fastifyOauth2.GOOGLE_CONFIGURATION
         },
         startRedirectPath: "/login/google",
-        callbackUri: "http://localhost:3000/login/google/callback"
+        callbackUri: "/login/google/callback",
+        scope: ["email", "profile"]
     })
 
-    fastify.get("/", (_, reply) => reply.redirect("https://github.com/xcfio/chat-app"))
+    fastify.get("/", async (_, reply) => reply.redirect("https://github.com/xcfio/chat-app"))
     fastify.addHook("onError", (_, reply, error) => {
         if ((error instanceof Error && error.message.startsWith("Rate limit exceeded")) || isFastifyError(error)) {
             throw error
@@ -85,19 +86,35 @@ const main = async () => {
         }
     })
 
-    await fastify.listen({
-        host: "RENDER" in process.env ? `0.0.0.0` : `localhost`,
-        port: Number(process.env.PORT ?? 7200)
-    })
+    await fastify.listen({ host: `localhost`, port: 7200 })
+    console.log(`Server listening at http://localhost:7200`)
 
-    console.log(
-        `Server listening at http://${"RENDER" in process.env ? `0.0.0.0` : `localhost`}:${Number(
-            process.env.PORT ?? 7200
-        )}`
-    )
+    fastify.io.on("connection", (socket) => {
+        console.log(`User connected: ${socket.id}`)
+
+        // Authentication
+        socket.on("authenticate", () => socket.emit("error", { message: "Not Implemented", code: "NOT_IMPLEMENTED" }))
+
+        // Room management
+        socket.on("join_room", () => socket.emit("error", { message: "Not Implemented", code: "NOT_IMPLEMENTED" }))
+        socket.on("leave_room", () => socket.emit("error", { message: "Not Implemented", code: "NOT_IMPLEMENTED" }))
+        socket.on("get_room_users", () => socket.emit("error", { message: "Not Implemented", code: "NOT_IMPLEMENTED" }))
+
+        // Message handling
+        socket.on("send_message", () => socket.emit("error", { message: "Not Implemented", code: "NOT_IMPLEMENTED" }))
+        socket.on("edit_message", () => socket.emit("error", { message: "Not Implemented", code: "NOT_IMPLEMENTED" }))
+        socket.on("delete_message", () => socket.emit("error", { message: "Not Implemented", code: "NOT_IMPLEMENTED" }))
+
+        // Typing indicators
+        socket.on("start_typing", () => socket.emit("error", { message: "Not Implemented", code: "NOT_IMPLEMENTED" }))
+        socket.on("stop_typing", () => socket.emit("error", { message: "Not Implemented", code: "NOT_IMPLEMENTED" }))
+
+        socket.on("disconnect", (reason) => {
+            console.log(`User disconnected: ${socket.id}, Reason: ${reason}`)
+        })
+    })
 
     return fastify
 }
 
 main()
-export default main
