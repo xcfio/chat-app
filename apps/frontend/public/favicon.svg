@@ -1,0 +1,59 @@
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <!-- Unified gradient for all shapes -->
+        <linearGradient id="mainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color: #6366f1" />
+            <stop offset="100%" style="stop-color: #06b6d4" />
+        </linearGradient>
+    </defs>
+
+    <!-- Left chevron (<) -->
+    <!-- Top bar -->
+    <rect
+        x="26"
+        y="100"
+        width="200"
+        height="30"
+        rx="15"
+        ry="15"
+        fill="url(#mainGradient)"
+        transform="rotate(-45 140 165)"
+    />
+
+    <!-- Bottom bar -->
+    <rect
+        x="26"
+        y="274"
+        width="200"
+        height="30"
+        rx="15"
+        ry="15"
+        fill="url(#mainGradient)"
+        transform="rotate(45 140 235)"
+    />
+
+    <!-- Right chevron (>) -->
+    <!-- Top bar -->
+    <rect
+        x="174"
+        y="100"
+        width="200"
+        height="30"
+        rx="15"
+        ry="15"
+        fill="url(#mainGradient)"
+        transform="rotate(45 260 165)"
+    />
+
+    <!-- Bottom bar -->
+    <rect
+        x="174"
+        y="274"
+        width="200"
+        height="30"
+        rx="15"
+        ry="15"
+        fill="url(#mainGradient)"
+        transform="rotate(-45 260 235)"
+    />
+</svg>
