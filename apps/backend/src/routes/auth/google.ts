@@ -1,0 +1,422 @@
+import { CreateError, isFastifyError } from "../../function"
+import { ErrorResponse } from "../../type"
+import { db, table } from "../../database"
+import { main } from "../../"
+import { Type, Static } from "@sinclair/typebox"
+import { randomBytes } from "node:crypto"
+
+const GoogleUserSchema = Type.Object({
+    id: Type.String(),
+    email: Type.String(),
+    verified_email: Type.Boolean(),
+    name: Type.String(),
+    given_name: Type.Optional(Type.String()),
+    family_name: Type.Optional(Type.String()),
+    picture: Type.Optional(Type.String()),
+    locale: Type.Optional(Type.String())
+})
+
+const AuthResponseSchema = Type.Object({
+    success: Type.Boolean(),
+    message: Type.String(),
+    user: Type.Optional(GoogleUserSchema),
+    redirectUrl: Type.Optional(Type.String())
+})
+
+const OAuthCallbackQuerySchema = Type.Object({
+    code: Type.Optional(Type.String()),
+    error: Type.Optional(Type.String()),
+    error_description: Type.Optional(Type.String()),
+    state: Type.Optional(Type.String()),
+    scope: Type.Optional(Type.String())
+})
+
+export default function AuthGoogle(fastify: Awaited<ReturnType<typeof main>>) {
+    fastify.route({
+        method: "GET",
+        url: "/auth/google",
+        schema: {
+            description: "Initiate Google OAuth login",
+            tags: ["Authentication"],
+            response: {
+                302: Type.Object({
+                    message: Type.String()
+                }),
+                "4xx": ErrorResponse,
+                "5xx": ErrorResponse
+            }
+        },
+        handler: async (_, reply) => {
+            try {
+                const state = randomBytes(32).toString("hex")
+
+                const googleAuthUrl = [
+                    `https://accounts.google.com/o/oauth2/v2/auth?`,
+                    `client_id=${process.env.GOOGLE_CLIENT_ID}&`,
+                    `redirect_uri=${encodeURIComponent(process.env.GOOGLE_REDIRECT_URI || "http://localhost:7200/auth/google/callback")}&`,
+                    `response_type=code&`,
+                    `scope=${encodeURIComponent("openid email profile")}&`,
+                    `access_type=offline&`,
+                    `include_granted_scopes=true&`,
+                    `state=${state}`
+                ]
+
+                reply.setCookie("google_oauth_state", state, {
+                    signed: true,
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "lax",
+                    maxAge: 600, // 10 minutes
+                    path: "/"
+                })
+
+                return reply.redirect(googleAuthUrl.join(""))
+            } catch (error) {
+                if (isFastifyError(error)) {
+                    throw error
+                } else {
+                    console.trace(error)
+                    throw CreateError(500, "INTERNAL_SERVER_ERROR", "Internal Server Error")
+                }
+            }
+        }
+    })
+
+    fastify.route({
+        method: "GET",
+        url: "/auth/google/callback",
+        schema: {
+            description: "Handle Google OAuth callback",
+            tags: ["Authentication"],
+            querystring: OAuthCallbackQuerySchema,
+            response: {
+                302: Type.Object({
+                    message: Type.String()
+                }),
+                200: AuthResponseSchema,
+                "4xx": ErrorResponse,
+                "5xx": ErrorResponse
+            }
+        },
+        handler: async (request, reply) => {
+            try {
+                const { code, error, error_description, state } = request.query
+
+                if (error) {
+                    console.error("Google OAuth error:", error, error_description)
+                    reply.clearCookie("google_oauth_state", { path: "/" })
+                    return reply.redirect(`${process.env.FRONTEND_URL}/login?error=${error}`)
+                }
+
+                if (!code) {
+                    reply.clearCookie("google_oauth_state", { path: "/" })
+                    throw CreateError(400, "NO_AUTH_CODE", "Authorization code not provided")
+                }
+
+                // CSRF Protection
+                const storedState = request.unsignCookie(request.cookies.google_oauth_state || "")
+                if (!storedState.valid || !state || storedState.value !== state) {
+                    reply.clearCookie("google_oauth_state", { path: "/" })
+                    throw CreateError(400, "INVALID_STATE", "Invalid or missing state parameter")
+                }
+
+                // Clear the state cookie
+                reply.clearCookie("google_oauth_state", { path: "/" })
+
+                // Exchange code for tokens
+                const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: new URLSearchParams({
+                        client_id: process.env.GOOGLE_CLIENT_ID!,
+                        client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+                        code: code,
+                        grant_type: "authorization_code",
+                        redirect_uri: process.env.GOOGLE_REDIRECT_URI || "http://localhost:7200/auth/google/callback"
+                    })
+                })
+
+                if (!tokenResponse.ok) {
+                    const errorData = await tokenResponse.json()
+                    console.error("Google token exchange failed:", errorData)
+                    throw CreateError(400, "TOKEN_EXCHANGE_FAILED", "Failed to exchange authorization code")
+                }
+
+                const tokenData = (await tokenResponse.json()) as {
+                    access_token: string
+                    refresh_token?: string
+                    expires_in: number
+                    token_type: string
+                    scope: string
+                    id_token: string
+                }
+
+                // Get user info from Google
+                const userResponse = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+                    headers: {
+                        Authorization: `Bearer ${tokenData.access_token}`
+                    }
+                })
+
+                if (!userResponse.ok) {
+                    console.error("Failed to fetch user data from Google")
+                    throw CreateError(400, "USER_FETCH_FAILED", "Failed to fetch user data")
+                }
+
+                const user = (await userResponse.json()) as Static<typeof GoogleUserSchema>
+
+                if (!user.email) {
+                    throw CreateError(400, "NO_EMAIL", "User email not found")
+                }
+
+                if (!user.verified_email) {
+                    throw CreateError(400, "EMAIL_NOT_VERIFIED", "User email is not verified")
+                }
+
+                const values = {
+                    type: "google",
+                    token: tokenData.refresh_token || tokenData.access_token, // Prefer refresh token for long-term storage
+                    email: user.email,
+                    username: user.email.split("@")[0], // Use email prefix as username
+                    name: user.name,
+                    avatar:
+                        user.picture ||
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=4285f4&color=fff`
+                } as const
+
+                const data = await db
+                    .insert(table.user)
+                    .values(values)
+                    .onConflictDoUpdate({
+                        target: table.user.email,
+                        set: {
+                            token: tokenData.refresh_token || tokenData.access_token,
+                            name: user.name,
+                            avatar:
+                                user.picture ||
+                                `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=4285f4&color=fff`
+                        }
+                    })
+                    .returning()
+
+                const jwt = fastify.jwt.sign({
+                    ...data[0],
+                    token: tokenData.access_token, // Use access token in JWT for API calls
+                    iat: Math.floor(Date.now() / 1000),
+                    exp: Math.floor(Date.now() / 1000) + tokenData.expires_in
+                })
+
+                reply.setCookie("auth", jwt, {
+                    signed: true,
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "strict",
+                    maxAge: tokenData.expires_in,
+                    path: "/"
+                })
+
+                return reply.redirect(process.env.FRONTEND_URL ?? "http://localhost:7700")
+            } catch (error) {
+                if (isFastifyError(error)) {
+                    throw error
+                } else {
+                    console.trace(error)
+                    throw CreateError(500, "INTERNAL_SERVER_ERROR", "Internal Server Error")
+                }
+            }
+        }
+    })
+}
+
+/*
+// Get current authenticated user
+fastify.route({
+    method: "GET",
+    url: "/auth/me",
+    schema: {
+        description: "Get current authenticated user",
+        tags: ["Authentication"],
+        security: [{ bearerAuth: [] }],
+        response: {
+            200: Type.Object({
+                success: Type.Boolean(),
+                user: GoogleUserSchema
+            }),
+            401: AuthErrorSchema
+        }
+    },
+    preHandler: fastify.authenticate,
+    handler: async (request, reply) => {
+        try {
+            const user = (request as any).user
+
+            return reply.send({
+                success: true,
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                    picture: user.avatar,
+                    verified_email: true
+                }
+            })
+        } catch (error) {
+            if (isFastifyError(error)) {
+                throw error
+            } else {
+                console.trace(error)
+                throw CreateError(500, "INTERNAL_SERVER_ERROR", "Internal Server Error")
+            }
+        }
+    }
+})
+
+// Logout user
+fastify.route({
+    method: "POST",
+    url: "/auth/logout",
+    schema: {
+        description: "Logout user and clear authentication",
+        tags: ["Authentication"],
+        response: {
+            200: Type.Object({
+                success: Type.Boolean(),
+                message: Type.String()
+            })
+        }
+    },
+    handler: async (request, reply) => {
+        try {
+            // Clear authentication cookie
+            reply.clearCookie("auth", {
+                path: "/",
+                signed: true
+            })
+
+            // TODO: Revoke Google tokens
+            // if (request.user && request.user.token) {
+            //     await fetch(`https://oauth2.googleapis.com/revoke?token=${request.user.token}`, {
+            //         method: "POST"
+            //     })
+            // }
+
+            return reply.send({
+                success: true,
+                message: "Successfully logged out"
+            })
+        } catch (error) {
+            if (isFastifyError(error)) {
+                throw error
+            } else {
+                console.trace(error)
+                throw CreateError(500, "INTERNAL_SERVER_ERROR", "Internal Server Error")
+            }
+        }
+    }
+})
+
+// Refresh JWT token using Google refresh token
+fastify.route({
+    method: "POST",
+    url: "/auth/refresh",
+    schema: {
+        description: "Refresh JWT token using Google refresh token",
+        tags: ["Authentication"],
+        security: [{ bearerAuth: [] }],
+        response: {
+            200: Type.Object({
+                success: Type.Boolean(),
+                token: Type.String(),
+                user: GoogleUserSchema
+            }),
+            400: AuthErrorSchema,
+            401: AuthErrorSchema
+        }
+    },
+    preHandler: fastify.authenticate,
+    handler: async (request, reply) => {
+        try {
+            const currentUser = (request as any).user
+
+            if (!currentUser.token) {
+                throw CreateError(400, "NO_REFRESH_TOKEN", "No refresh token available")
+            }
+
+            // Use refresh token to get new access token
+            const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: new URLSearchParams({
+                    client_id: process.env.GOOGLE_CLIENT_ID!,
+                    client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+                    refresh_token: currentUser.token,
+                    grant_type: "refresh_token"
+                })
+            })
+
+            if (!tokenResponse.ok) {
+                const errorData = await tokenResponse.json()
+                console.error("Google token refresh failed:", errorData)
+                throw CreateError(401, "TOKEN_REFRESH_FAILED", "Failed to refresh access token")
+            }
+
+            const tokenData = (await tokenResponse.json()) as {
+                access_token: string
+                expires_in: number
+                token_type: string
+                scope: string
+            }
+
+            // Get updated user information
+            const userResponse = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+                headers: {
+                    Authorization: `Bearer ${tokenData.access_token}`
+                }
+            })
+
+            if (!userResponse.ok) {
+                throw CreateError(401, "USER_FETCH_FAILED", "Failed to fetch updated user data")
+            }
+
+            const googleUser: Static<typeof GoogleUserSchema> = (await userResponse.json()) as any
+
+            // Create new JWT token
+            const jwtPayload = {
+                ...currentUser,
+                token: tokenData.access_token,
+                iat: Math.floor(Date.now() / 1000),
+                exp: Math.floor(Date.now() / 1000) + tokenData.expires_in
+            }
+
+            const newJwtToken = fastify.jwt.sign(jwtPayload)
+
+            // Update auth cookie
+            reply.setCookie("auth", newJwtToken, {
+                signed: true,
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
+                maxAge: tokenData.expires_in,
+                path: "/"
+            })
+
+            return reply.send({
+                success: true,
+                token: newJwtToken,
+                user: googleUser
+            })
+        } catch (error) {
+            if (isFastifyError(error)) {
+                throw error
+            } else {
+                console.trace(error)
+                throw CreateError(500, "INTERNAL_SERVER_ERROR", "Internal Server Error")
+            }
+        }
+    }
+})
+*/

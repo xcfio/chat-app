@@ -1,9 +1,10 @@
-import { Server as SocketIOServer } from "socket.io"
 import { Type } from "@sinclair/typebox"
+import { Server } from "socket.io"
 
 declare module "fastify" {
     interface FastifyInstance {
-        io: SocketIOServer
+        authenticate: (request: FastifyRequest, reply: FastifyReply) => void
+        io: Server
     }
 }
 

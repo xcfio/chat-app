@@ -6,14 +6,12 @@ export const user = pgTable("user", {
         .unique()
         .primaryKey()
         .$defaultFn(() => v7()),
-    username: text("username").notNull().unique(),
+    type: text("type").notNull().$type<"discord" | "github" | "google">(),
+    token: text("token").notNull(),
     email: text("email").notNull().unique(),
+    username: text("username").notNull().unique(),
     name: text("name"),
     avatar: text("avatar"),
-
-    oauthProvider: text("oauth_provider").notNull().$type<"discord" | "github" | "google">(),
-    oauthId: text("oauth_id").notNull(),
-
     lastSeen: timestamp("last_seen").defaultNow(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
