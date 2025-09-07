@@ -124,7 +124,6 @@ export default function AuthGitHub(fastify: Awaited<ReturnType<typeof main>>) {
                     throw CreateError(400, "INVALID_STATE", "Invalid state parameter")
                 }
 
-                // Clear the state cookie
                 reply.clearCookie("github_oauth_state", { path: "/" })
 
                 const tokenResponse = await fetch("https://github.com/login/oauth/access_token", {
@@ -159,7 +158,6 @@ export default function AuthGitHub(fastify: Awaited<ReturnType<typeof main>>) {
                     throw CreateError(400, "TOKEN_ERROR", tokenData.error_description || "Token exchange failed")
                 }
 
-                // Fetch user data from GitHub
                 const userResponse = await fetch("https://api.github.com/user", {
                     headers: {
                         Authorization: `Bearer ${tokenData.access_token}`,
@@ -174,13 +172,12 @@ export default function AuthGitHub(fastify: Awaited<ReturnType<typeof main>>) {
 
                 const user = (await userResponse.json()) as Static<typeof GitHubUserSchema>
 
-                // Fetch user's primary email if not public
                 let userEmail = user.email
                 if (!userEmail) {
                     const emailResponse = await fetch("https://api.github.com/user/emails", {
                         headers: {
                             Authorization: `Bearer ${tokenData.access_token}`,
-                            "User-Agent": "YourApp/1.0"
+                            "User-Agent": "ChatApp/1.0"
                         }
                     })
 
@@ -227,7 +224,7 @@ export default function AuthGitHub(fastify: Awaited<ReturnType<typeof main>>) {
                     ...data[0],
                     token: tokenData.access_token,
                     iat: Math.floor(Date.now() / 1000),
-                    exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60 // 7 days
+                    exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60
                 })
 
                 reply.setCookie("auth", jwt, {
@@ -235,7 +232,7 @@ export default function AuthGitHub(fastify: Awaited<ReturnType<typeof main>>) {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === "production",
                     sameSite: "strict",
-                    maxAge: 7 * 24 * 60 * 60, // 7 days
+                    maxAge: 7 * 24 * 60 * 60,
                     path: "/"
                 })
 

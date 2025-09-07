@@ -49,7 +49,7 @@ export async function main() {
                 },
                 contact: {
                     email: bugs.url,
-                    name: "Support Team",
+                    name: "Discord",
                     url: "https://discord.com/invite/FaCCaFM74Q"
                 },
                 termsOfService: "/terms"
@@ -122,7 +122,7 @@ export async function main() {
     Routes(fastify)
     fastify.get("/terms", () => "ToS?? Forget about it")
     fastify.addHook("onError", (_, reply, error) => {
-        if ((error instanceof Error && error.message.startsWith("Rate limit exceeded")) || isFastifyError(error)) {
+        if ((Error.isError(error) && error.message.startsWith("Rate limit exceeded")) || isFastifyError(error)) {
             throw error
         } else {
             console.trace(error)

@@ -6,15 +6,15 @@ export const user = pgTable("user", {
         .unique()
         .primaryKey()
         .$defaultFn(() => v7()),
-    type: text("type").notNull().$type<"discord" | "github" | "google">(),
+    type: text("type").notNull().$type<"github" | "google">(),
     token: text("token").notNull(),
     email: text("email").notNull().unique(),
     username: text("username").notNull().unique(),
     name: text("name"),
     avatar: text("avatar"),
-    lastSeen: timestamp("last_seen").defaultNow(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
+    lastSeen: timestamp("last_seen", { withTimezone: false }).defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: false }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: false })
         .defaultNow()
         .notNull()
         .$onUpdateFn(() => new Date())
