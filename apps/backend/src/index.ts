@@ -1,8 +1,11 @@
 import { CreateError, isFastifyError, ValidationErrorHandler } from "./function"
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox"
 import { FastifyReply, FastifyRequest } from "fastify"
+import { bugs, license } from "../package.json"
 import RateLimit from "@fastify/rate-limit"
+import SwaggerUI from "@fastify/swagger-ui"
 import fastifyIO from "fastify-socket.io"
+import Swagger from "@fastify/swagger"
 import Cookie from "@fastify/cookie"
 import Cors from "@fastify/cors"
 import JTW from "@fastify/jwt"
@@ -24,11 +27,82 @@ export async function main() {
     fastify.get("/status", (_, reply) => reply.code(200).send("OK"))
 
     await fastify.register(RateLimit, {
-        max: 10,
+        max: 20,
         timeWindow: 60000,
         keyGenerator: (req) => {
             const forwarded = req.headers["x-forwarded-for"]
             return typeof forwarded === "string" ? forwarded.split(",")[0].trim() : req.ip
+        }
+    })
+
+    await fastify.register(Swagger, {
+        openapi: {
+            openapi: "3.1.0",
+            info: {
+                title: "Chat App API",
+                description:
+                    "RESTful API for real-time chat application with user authentication and message management",
+                version: "1.0.0",
+                license: {
+                    name: license,
+                    url: "https://opensource.org/licenses/MIT"
+                },
+                contact: {
+                    email: bugs.url,
+                    name: "Support Team",
+                    url: "https://discord.com/invite/FaCCaFM74Q"
+                },
+                termsOfService: "/terms"
+            },
+            tags: [
+                { name: "Auth", description: "Authentication endpoints" },
+                { name: "Users", description: "User management" },
+                { name: "Messages", description: "Chat message operations" },
+                { name: "Rooms", description: "Chat room management" }
+            ]
+        }
+    })
+
+    await fastify.register(SwaggerUI, {
+        routePrefix: "/",
+        staticCSP: true,
+        transformSpecificationClone: true,
+        uiConfig: {
+            defaultModelRendering: "example",
+            docExpansion: "list",
+            displayRequestDuration: true,
+            showCommonExtensions: false,
+            displayOperationId: false,
+            tryItOutEnabled: false,
+            showExtensions: false,
+            deepLinking: false,
+            filter: true,
+            defaultModelsExpandDepth: 1,
+            defaultModelExpandDepth: 1,
+            supportedSubmitMethods: []
+        },
+        theme: {
+            title: "Chat App API Documentation",
+            css: [
+                {
+                    filename: "custom.css",
+                    content: `
+                    .swagger-ui .top-bar { display: none; }
+                    .swagger-ui .info { margin: 20px 0; }
+                    .swagger-ui .info .title { color: #3b4151; }
+                `
+                }
+            ]
+        },
+        logo: {
+            type: "image/svg+xml",
+            href: "https://github.com/xcfio/chat-app",
+            target: "_blank",
+            content: await (
+                await fetch(
+                    "https://raw.githubusercontent.com/xcfio/chat-app/refs/heads/main/apps/frontend/public/favicon.svg"
+                )
+            ).text()
         }
     })
 
@@ -46,7 +120,7 @@ export async function main() {
     })
 
     Routes(fastify)
-    fastify.get("/", async (_, reply) => reply.redirect("https://github.com/xcfio/chat-app"))
+    fastify.get("/terms", () => "ToS?? Forget about it")
     fastify.addHook("onError", (_, reply, error) => {
         if ((error instanceof Error && error.message.startsWith("Rate limit exceeded")) || isFastifyError(error)) {
             throw error

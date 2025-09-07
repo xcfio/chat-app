@@ -3,8 +3,12 @@
     "version": "1.0.0",
     "main": "index.js",
     "type": "commonjs",
-    "author": "xcfio",
+    "author": "Omar Faruk",
     "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/xcfio/chat-app/issues",
+        "email": "omarfaruksxp@gmail.com"
+    },
     "scripts": {
         "db": "drizzle-kit studio --port=4000",
         "gen": "drizzle-kit generate",
