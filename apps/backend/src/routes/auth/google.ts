@@ -39,9 +39,7 @@ export default function AuthGoogle(fastify: Awaited<ReturnType<typeof main>>) {
             description: "Initiate Google OAuth login",
             tags: ["Authentication"],
             response: {
-                302: Type.Object({
-                    message: Type.String()
-                }),
+                302: Type.Object({ message: Type.String() }),
                 "4xx": ErrorResponse,
                 "5xx": ErrorResponse
             }
@@ -66,7 +64,7 @@ export default function AuthGoogle(fastify: Awaited<ReturnType<typeof main>>) {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === "production",
                     sameSite: "lax",
-                    maxAge: 600, // 10 minutes
+                    maxAge: 600,
                     path: "/"
                 })
 
@@ -90,9 +88,7 @@ export default function AuthGoogle(fastify: Awaited<ReturnType<typeof main>>) {
             tags: ["Authentication"],
             querystring: OAuthCallbackQuerySchema,
             response: {
-                302: Type.Object({
-                    message: Type.String()
-                }),
+                302: Type.Object({ message: Type.String() }),
                 200: AuthResponseSchema,
                 "4xx": ErrorResponse,
                 "5xx": ErrorResponse
@@ -177,9 +173,9 @@ export default function AuthGoogle(fastify: Awaited<ReturnType<typeof main>>) {
 
                 const values = {
                     type: "google",
-                    token: tokenData.refresh_token || tokenData.access_token, // Prefer refresh token for long-term storage
+                    token: tokenData.refresh_token || tokenData.access_token,
                     email: user.email,
-                    username: user.email.split("@")[0], // Use email prefix as username
+                    username: user.email.split("@")[0],
                     name: user.name,
                     avatar:
                         user.picture ||

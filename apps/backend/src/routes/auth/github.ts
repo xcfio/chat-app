@@ -46,9 +46,7 @@ export default function AuthGitHub(fastify: Awaited<ReturnType<typeof main>>) {
             description: "Initiate GitHub OAuth login",
             tags: ["Authentication"],
             response: {
-                302: Type.Object({
-                    message: Type.String()
-                }),
+                302: Type.Object({ message: Type.String() }),
                 "4xx": ErrorResponse,
                 "5xx": ErrorResponse
             }
@@ -95,10 +93,7 @@ export default function AuthGitHub(fastify: Awaited<ReturnType<typeof main>>) {
             tags: ["Authentication"],
             querystring: OAuthCallbackQuerySchema,
             response: {
-                302: Type.Object({
-                    message: Type.String()
-                }),
-                200: AuthResponseSchema,
+                302: Type.Object({ message: Type.String() }),
                 "4xx": ErrorResponse,
                 "5xx": ErrorResponse
             }

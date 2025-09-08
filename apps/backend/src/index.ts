@@ -36,6 +36,7 @@ export async function main() {
     })
 
     await fastify.register(Swagger, {
+        hideUntagged: true,
         openapi: {
             openapi: "3.1.0",
             info: {
@@ -49,16 +50,16 @@ export async function main() {
                 },
                 contact: {
                     email: bugs.url,
-                    name: "Discord",
+                    name: "Support Team",
                     url: "https://discord.com/invite/FaCCaFM74Q"
                 },
                 termsOfService: "/terms"
             },
             tags: [
-                { name: "Auth", description: "Authentication endpoints" },
-                { name: "Users", description: "User management" },
-                { name: "Messages", description: "Chat message operations" },
-                { name: "Rooms", description: "Chat room management" }
+                { name: "Authentication", description: "Authentication endpoints" },
+                { name: "Conversation", description: "Conversation management endpoints" },
+                { name: "Discovery", description: "User discovery endpoints" },
+                { name: "Message", description: "Message operations endpoints" }
             ]
         }
     })
