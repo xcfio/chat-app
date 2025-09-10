@@ -1,33 +1,25 @@
 import { CreateError, isFastifyError } from "../../function"
-import { ErrorResponse } from "../../type"
+import { ErrorResponse, JWTPayload } from "../../type"
 import { db, table } from "../../database"
 import { main } from "../../"
 import { Type, Static } from "@sinclair/typebox"
 import { randomBytes } from "node:crypto"
 
-const GitHubUserSchema = Type.Object({
-    id: Type.Number(),
-    login: Type.String(),
-    name: Type.Optional(Type.String()),
-    email: Type.Optional(Type.String()),
-    avatar_url: Type.Optional(Type.String()),
-    bio: Type.Optional(Type.String()),
-    company: Type.Optional(Type.String()),
-    location: Type.Optional(Type.String()),
-    blog: Type.Optional(Type.String()),
-    html_url: Type.String(),
-    public_repos: Type.Optional(Type.Number()),
-    public_gists: Type.Optional(Type.Number()),
-    followers: Type.Optional(Type.Number()),
-    following: Type.Optional(Type.Number()),
-    created_at: Type.Optional(Type.String()),
-    updated_at: Type.Optional(Type.String())
+const GoogleUserSchema = Type.Object({
+    id: Type.String(),
+    email: Type.String(),
+    verified_email: Type.Boolean(),
+    name: Type.String(),
+    given_name: Type.Optional(Type.String()),
+    family_name: Type.Optional(Type.String()),
+    picture: Type.Optional(Type.String()),
+    locale: Type.Optional(Type.String())
 })
 
 const AuthResponseSchema = Type.Object({
     success: Type.Boolean(),
     message: Type.String(),
-    user: Type.Optional(GitHubUserSchema),
+    user: Type.Optional(GoogleUserSchema),
     redirectUrl: Type.Optional(Type.String())
 })
 
@@ -35,15 +27,16 @@ const OAuthCallbackQuerySchema = Type.Object({
     code: Type.Optional(Type.String()),
     error: Type.Optional(Type.String()),
     error_description: Type.Optional(Type.String()),
-    state: Type.Optional(Type.String())
+    state: Type.Optional(Type.String()),
+    scope: Type.Optional(Type.String())
 })
 
-export default function AuthGitHub(fastify: Awaited<ReturnType<typeof main>>) {
+export default function AuthGoogle(fastify: Awaited<ReturnType<typeof main>>) {
     fastify.route({
         method: "GET",
-        url: "/auth/github",
+        url: "/auth/google",
         schema: {
-            description: "Initiate GitHub OAuth login",
+            description: "Initiate Google OAuth login",
             tags: ["Authentication"],
             response: {
                 302: Type.Object({ message: Type.String() }),
@@ -55,16 +48,18 @@ export default function AuthGitHub(fastify: Awaited<ReturnType<typeof main>>) {
             try {
                 const state = randomBytes(32).toString("hex")
 
-                const githubAuthUrl = [
-                    `https://github.com/login/oauth/authorize?`,
-                    `client_id=${process.env.GITHUB_CLIENT_ID}&`,
-                    `redirect_uri=${encodeURIComponent(process.env.GITHUB_REDIRECT_URI || "http://localhost:7200/auth/github/callback")}&`,
-                    `scope=user:email&`,
-                    `state=${state}&`,
-                    `allow_signup=true`
+                const googleAuthUrl = [
+                    `https://accounts.google.com/o/oauth2/v2/auth?`,
+                    `client_id=${process.env.GOOGLE_CLIENT_ID}&`,
+                    `redirect_uri=${encodeURIComponent(process.env.GOOGLE_REDIRECT_URI || "http://localhost:7200/auth/google/callback")}&`,
+                    `response_type=code&`,
+                    `scope=${encodeURIComponent("openid email profile")}&`,
+                    `access_type=offline&`,
+                    `include_granted_scopes=true&`,
+                    `state=${state}`
                 ]
 
-                reply.setCookie("github_oauth_state", state, {
+                reply.setCookie("google_oauth_state", state, {
                     signed: true,
                     httpOnly: true,
                     secure: process.env.NODE_ENV === "production",
@@ -73,7 +68,7 @@ export default function AuthGitHub(fastify: Awaited<ReturnType<typeof main>>) {
                     path: "/"
                 })
 
-                return reply.redirect(githubAuthUrl.join(""))
+                return reply.redirect(googleAuthUrl.join(""))
             } catch (error) {
                 if (isFastifyError(error)) {
                     throw error
@@ -87,118 +82,104 @@ export default function AuthGitHub(fastify: Awaited<ReturnType<typeof main>>) {
 
     fastify.route({
         method: "GET",
-        url: "/auth/github/callback",
+        url: "/auth/google/callback",
         schema: {
-            description: "Handle GitHub OAuth callback",
+            description: "Handle Google OAuth callback",
             tags: ["Authentication"],
             querystring: OAuthCallbackQuerySchema,
             response: {
                 302: Type.Object({ message: Type.String() }),
+                200: AuthResponseSchema,
                 "4xx": ErrorResponse,
                 "5xx": ErrorResponse
             }
         },
         handler: async (request, reply) => {
             try {
-                const { code, error, state } = request.query
+                const { code, error, error_description, state } = request.query
 
                 if (error) {
-                    console.error("GitHub OAuth error:", error)
-                    reply.clearCookie("github_oauth_state", { path: "/" })
+                    console.error("Google OAuth error:", error, error_description)
+                    reply.clearCookie("google_oauth_state", { path: "/" })
                     return reply.redirect(`${process.env.FRONTEND_URL}/login?error=${error}`)
                 }
 
                 if (!code) {
-                    reply.clearCookie("github_oauth_state", { path: "/" })
+                    reply.clearCookie("google_oauth_state", { path: "/" })
                     throw CreateError(400, "NO_AUTH_CODE", "Authorization code not provided")
                 }
 
-                const storedState = request.unsignCookie(request.cookies.github_oauth_state || "")
-                if (!storedState.valid || storedState.value !== state) {
-                    reply.clearCookie("github_oauth_state", { path: "/" })
-                    throw CreateError(400, "INVALID_STATE", "Invalid state parameter")
+                // CSRF Protection
+                const storedState = request.unsignCookie(request.cookies.google_oauth_state || "")
+                if (!storedState.valid || !state || storedState.value !== state) {
+                    reply.clearCookie("google_oauth_state", { path: "/" })
+                    throw CreateError(400, "INVALID_STATE", "Invalid or missing state parameter")
                 }
 
-                reply.clearCookie("github_oauth_state", { path: "/" })
+                // Clear the state cookie
+                reply.clearCookie("google_oauth_state", { path: "/" })
 
-                const tokenResponse = await fetch("https://github.com/login/oauth/access_token", {
+                // Exchange code for tokens
+                const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
                     method: "POST",
                     headers: {
-                        Accept: "application/json",
                         "Content-Type": "application/x-www-form-urlencoded"
                     },
                     body: new URLSearchParams({
-                        client_id: process.env.GITHUB_CLIENT_ID!,
-                        client_secret: process.env.GITHUB_CLIENT_SECRET!,
-                        code: code
+                        client_id: process.env.GOOGLE_CLIENT_ID!,
+                        client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+                        code: code,
+                        grant_type: "authorization_code",
+                        redirect_uri: process.env.GOOGLE_REDIRECT_URI || "http://localhost:7200/auth/google/callback"
                     })
                 })
 
                 if (!tokenResponse.ok) {
                     const errorData = await tokenResponse.json()
-                    console.error("Token exchange failed:", errorData)
+                    console.error("Google token exchange failed:", errorData)
                     throw CreateError(400, "TOKEN_EXCHANGE_FAILED", "Failed to exchange authorization code")
                 }
 
                 const tokenData = (await tokenResponse.json()) as {
                     access_token: string
+                    refresh_token?: string
+                    expires_in: number
                     token_type: string
                     scope: string
-                    error?: string
-                    error_description?: string
+                    id_token: string
                 }
 
-                if (tokenData.error) {
-                    console.error("GitHub token error:", tokenData.error_description)
-                    throw CreateError(400, "TOKEN_ERROR", tokenData.error_description || "Token exchange failed")
-                }
-
-                const userResponse = await fetch("https://api.github.com/user", {
+                // Get user info from Google
+                const userResponse = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
                     headers: {
-                        Authorization: `Bearer ${tokenData.access_token}`,
-                        "User-Agent": "YourApp/1.0"
+                        Authorization: `Bearer ${tokenData.access_token}`
                     }
                 })
 
                 if (!userResponse.ok) {
-                    console.error("Failed to fetch user data from GitHub")
+                    console.error("Failed to fetch user data from Google")
                     throw CreateError(400, "USER_FETCH_FAILED", "Failed to fetch user data")
                 }
 
-                const user = (await userResponse.json()) as Static<typeof GitHubUserSchema>
+                const user = (await userResponse.json()) as Static<typeof GoogleUserSchema>
 
-                let userEmail = user.email
-                if (!userEmail) {
-                    const emailResponse = await fetch("https://api.github.com/user/emails", {
-                        headers: {
-                            Authorization: `Bearer ${tokenData.access_token}`,
-                            "User-Agent": "ChatApp/1.0"
-                        }
-                    })
-
-                    if (emailResponse.ok) {
-                        const emails = (await emailResponse.json()) as Array<{
-                            email: string
-                            primary: boolean
-                            verified: boolean
-                        }>
-
-                        const primaryEmail = emails.find((e) => e.primary && e.verified)
-                        userEmail = primaryEmail?.email
-                    }
+                if (!user.email) {
+                    throw CreateError(400, "NO_EMAIL", "User email not found")
                 }
 
-                if (!userEmail) {
-                    throw CreateError(400, "NO_EMAIL", "User email not found or not verified")
+                if (!user.verified_email) {
+                    throw CreateError(400, "EMAIL_NOT_VERIFIED", "User email is not verified")
                 }
 
                 const values = {
-                    type: "github",
-                    token: tokenData.access_token,
-                    email: userEmail,
-                    username: user.login,
-                    name: user.name || user.login,
-                    avatar: user.avatar_url || `https://github.com/identicons/${user.login}.png`
+                    type: "google",
+                    token: tokenData.refresh_token || tokenData.access_token,
+                    email: user.email,
+                    username: user.email.split("@")[0],
+                    name: user.name,
+                    avatar:
+                        user.picture ||
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=4285f4&color=fff`
                 } as const
 
                 const data = await db
@@ -207,27 +188,29 @@ export default function AuthGitHub(fastify: Awaited<ReturnType<typeof main>>) {
                     .onConflictDoUpdate({
                         target: table.user.email,
                         set: {
-                            token: tokenData.access_token,
-                            username: user.login,
-                            name: user.name || user.login,
-                            avatar: user.avatar_url || `https://github.com/identicons/${user.login}.png`
+                            token: tokenData.refresh_token || tokenData.access_token,
+                            name: user.name,
+                            avatar:
+                                user.picture ||
+                                `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=4285f4&color=fff`
                         }
                     })
                     .returning()
 
-                const jwt = fastify.jwt.sign({
+                const payload: JWTPayload = {
                     ...data[0],
                     token: tokenData.access_token,
                     iat: Math.floor(Date.now() / 1000),
-                    exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60
-                })
+                    exp: Math.floor(Date.now() / 1000) + tokenData.expires_in
+                }
 
+                const jwt = fastify.jwt.sign(payload)
                 reply.setCookie("auth", jwt, {
                     signed: true,
                     httpOnly: true,
                     secure: process.env.NODE_ENV === "production",
                     sameSite: "strict",
-                    maxAge: 7 * 24 * 60 * 60,
+                    maxAge: tokenData.expires_in,
                     path: "/"
                 })
 
@@ -256,27 +239,24 @@ fastify.route({
         response: {
             200: Type.Object({
                 success: Type.Boolean(),
-                user: GitHubUserSchema
+                user: GoogleUserSchema
             }),
             401: AuthErrorSchema
         }
     },
-    preHandler: fastify.authenticate, // Middleware to verify JWT
+    preHandler: fastify.authenticate,
     handler: async (request, reply) => {
         try {
-            // User data is available from JWT verification middleware
             const user = (request as any).user
 
             return reply.send({
                 success: true,
                 user: {
-                    id: user.userId,
-                    login: user.username,
-                    name: user.name,
+                    id: user.id,
                     email: user.email,
-                    avatar_url: user.avatar,
-                    html_url: `https://github.com/${user.username}`
-                    // Add other user fields as needed
+                    name: user.name,
+                    picture: user.avatar,
+                    verified_email: true
                 }
             })
         } catch (error) {
@@ -312,17 +292,10 @@ fastify.route({
                 signed: true
             })
 
-            // TODO: Revoke GitHub access token
+            // TODO: Revoke Google tokens
             // if (request.user && request.user.token) {
-            //     await fetch(`https://api.github.com/applications/${process.env.GITHUB_CLIENT_ID}/token`, {
-            //         method: "DELETE",
-            //         headers: {
-            //             "Authorization": `Basic ${Buffer.from(`${process.env.GITHUB_CLIENT_ID}:${process.env.GITHUB_CLIENT_SECRET}`).toString('base64')}`,
-            //             "Content-Type": "application/json"
-            //         },
-            //         body: JSON.stringify({
-            //             access_token: request.user.token
-            //         })
+            //     await fetch(`https://oauth2.googleapis.com/revoke?token=${request.user.token}`, {
+            //         method: "POST"
             //     })
             // }
 
@@ -341,21 +314,22 @@ fastify.route({
     }
 })
 
-// Refresh user data from GitHub
+// Refresh JWT token using Google refresh token
 fastify.route({
     method: "POST",
     url: "/auth/refresh",
     schema: {
-        description: "Refresh user data from GitHub",
+        description: "Refresh JWT token using Google refresh token",
         tags: ["Authentication"],
         security: [{ bearerAuth: [] }],
         response: {
             200: Type.Object({
                 success: Type.Boolean(),
-                user: GitHubUserSchema
+                token: Type.String(),
+                user: GoogleUserSchema
             }),
-            401: AuthErrorSchema,
-            400: AuthErrorSchema
+            400: AuthErrorSchema,
+            401: AuthErrorSchema
         }
     },
     preHandler: fastify.authenticate,
@@ -364,40 +338,55 @@ fastify.route({
             const currentUser = (request as any).user
 
             if (!currentUser.token) {
-                throw CreateError(400, "NO_ACCESS_TOKEN", "No access token available for refresh")
+                throw CreateError(400, "NO_REFRESH_TOKEN", "No refresh token available")
             }
 
-            // Fetch updated user information from GitHub
-            const userResponse = await fetch("https://api.github.com/user", {
+            // Use refresh token to get new access token
+            const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+                method: "POST",
                 headers: {
-                    Authorization: `Bearer ${currentUser.token}`,
-                    "User-Agent": "YourApp/1.0"
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: new URLSearchParams({
+                    client_id: process.env.GOOGLE_CLIENT_ID!,
+                    client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+                    refresh_token: currentUser.token,
+                    grant_type: "refresh_token"
+                })
+            })
+
+            if (!tokenResponse.ok) {
+                const errorData = await tokenResponse.json()
+                console.error("Google token refresh failed:", errorData)
+                throw CreateError(401, "TOKEN_REFRESH_FAILED", "Failed to refresh access token")
+            }
+
+            const tokenData = (await tokenResponse.json()) as {
+                access_token: string
+                expires_in: number
+                token_type: string
+                scope: string
+            }
+
+            // Get updated user information
+            const userResponse = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+                headers: {
+                    Authorization: `Bearer ${tokenData.access_token}`
                 }
             })
 
             if (!userResponse.ok) {
-                throw CreateError(401, "TOKEN_EXPIRED", "GitHub access token may be expired or revoked")
+                throw CreateError(401, "USER_FETCH_FAILED", "Failed to fetch updated user data")
             }
 
-            const githubUser: Static<typeof GitHubUserSchema> = (await userResponse.json()) as any
+            const googleUser: Static<typeof GoogleUserSchema> = (await userResponse.json()) as any
 
-            // Update user data in database
-            const updatedUser = await db
-                .update(table.user)
-                .set({
-                    username: githubUser.login,
-                    name: githubUser.name || githubUser.login,
-                    avatar: githubUser.avatar_url || `https://github.com/identicons/${githubUser.login}.png`
-                })
-                .where(eq(table.user.id, currentUser.id))
-                .returning()
-
-            // Create new JWT token with updated data
+            // Create new JWT token
             const jwtPayload = {
-                ...updatedUser[0],
-                token: currentUser.token,
+                ...currentUser,
+                token: tokenData.access_token,
                 iat: Math.floor(Date.now() / 1000),
-                exp: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60)
+                exp: Math.floor(Date.now() / 1000) + tokenData.expires_in
             }
 
             const newJwtToken = fastify.jwt.sign(jwtPayload)
@@ -408,13 +397,14 @@ fastify.route({
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
-                maxAge: 7 * 24 * 60 * 60,
+                maxAge: tokenData.expires_in,
                 path: "/"
             })
 
             return reply.send({
                 success: true,
-                user: githubUser
+                token: newJwtToken,
+                user: googleUser
             })
         } catch (error) {
             if (isFastifyError(error)) {

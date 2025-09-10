@@ -56,10 +56,30 @@ export async function main() {
                 termsOfService: "/terms"
             },
             tags: [
-                { name: "Authentication", description: "Authentication endpoints" },
-                { name: "Conversation", description: "Conversation management endpoints" },
-                { name: "Discovery", description: "User discovery endpoints" },
-                { name: "Message", description: "Message operations endpoints" }
+                {
+                    name: "Authentication",
+                    description: "OAuth authentication and session management endpoints"
+                },
+                {
+                    name: "Users",
+                    description: "User profile management and discovery endpoints"
+                },
+                {
+                    name: "Conversations",
+                    description: "Direct conversation management endpoints"
+                },
+                {
+                    name: "Messages",
+                    description: "Message operations and status management endpoints"
+                },
+                {
+                    name: "Search",
+                    description: "Search functionality for users and messages"
+                },
+                {
+                    name: "Health",
+                    description: "System health and status endpoints"
+                }
             ]
         }
     })

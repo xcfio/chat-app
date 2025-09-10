@@ -14,6 +14,6 @@ export const message = pgTable("message", {
     receiverId: uuid("receiver_id")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
-    editedAt: timestamp("edited_at", { withTimezone: false }),
+    status: text("status").notNull().default("sent").$type<"sent" | "delivered" | "read">(),
     createdAt: timestamp("created_at", { withTimezone: false }).defaultNow().notNull()
 })
