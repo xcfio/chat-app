@@ -5,7 +5,7 @@ import { main } from "../../"
 import { Type, Static } from "@sinclair/typebox"
 import { randomBytes } from "node:crypto"
 
-const GitHubUserSchema = Type.Object({
+export const GitHubUserSchema = Type.Object({
     id: Type.Number(),
     login: Type.String(),
     name: Type.Optional(Type.String()),
@@ -22,13 +22,6 @@ const GitHubUserSchema = Type.Object({
     following: Type.Optional(Type.Number()),
     created_at: Type.Optional(Type.String()),
     updated_at: Type.Optional(Type.String())
-})
-
-const AuthResponseSchema = Type.Object({
-    success: Type.Boolean(),
-    message: Type.String(),
-    user: Type.Optional(GitHubUserSchema),
-    redirectUrl: Type.Optional(Type.String())
 })
 
 const OAuthCallbackQuerySchema = Type.Object({

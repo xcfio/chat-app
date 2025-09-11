@@ -31,14 +31,11 @@
         "fastify-socket.io": "^5.1.0",
         "postgres": "^3.4.7",
         "socket.io": "^4.8.1",
-        "tsx": "^4.20.5",
         "typescript": "^5.9.2",
-        "uploadthing": "^7.7.4",
-        "uuid": "^11.1.0",
-        "zod": "^4.1.5"
+        "uuid": "^11.1.0"
     },
     "devDependencies": {
-        "@types/node": "^24.3.1",
+        "@types/node": "^24",
         "drizzle-kit": "^0.31.4"
     }
 }

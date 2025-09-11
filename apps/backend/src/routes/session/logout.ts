@@ -1,24 +1,27 @@
 import { CreateError, isFastifyError } from "../../function"
 import { ErrorResponse } from "../../type"
-import { main } from "../../"
 import { Type } from "@sinclair/typebox"
+import { main } from "../../"
 
-export default function Logout(fastify: Awaited<ReturnType<typeof main>>) {
+const LogoutResponseSchema = Type.Object({
+    success: Type.Boolean(),
+    message: Type.String()
+})
+
+export default function SessionLogout(fastify: Awaited<ReturnType<typeof main>>) {
     fastify.route({
-        method: "GET",
+        method: "POST",
         url: "/auth/logout",
         schema: {
             description: "Logout user and clear authentication",
-            tags: ["Authentication"],
+            tags: ["Session"],
             response: {
-                200: Type.Object({
-                    success: Type.Boolean(),
-                    message: Type.String()
-                }),
+                200: LogoutResponseSchema,
                 "4xx": ErrorResponse,
                 "5xx": ErrorResponse
             }
         },
+        preHandler: fastify.authenticate,
         handler: async (_, reply) => {
             try {
                 reply.clearCookie("auth", {
