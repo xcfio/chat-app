@@ -12,9 +12,10 @@ export const user = pgTable("user", {
     username: text("username").notNull().unique(),
     name: text("name"),
     avatar: text("avatar"),
-    lastSeen: timestamp("last_seen", { withTimezone: false }).defaultNow(),
-    createdAt: timestamp("created_at", { withTimezone: false }).defaultNow(),
+    lastSeen: timestamp("last_seen", { withTimezone: false }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: false }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: false })
+        .notNull()
         .defaultNow()
         .$onUpdateFn(() => new Date())
 })

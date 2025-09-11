@@ -1,25 +1,8 @@
+import { ErrorResponse, JWTPayload, ReplyUserSchema } from "../../type"
 import { CreateError, isFastifyError } from "../../function"
-import { ErrorResponse, JWTPayload } from "../../type"
 import { db, table } from "../../database"
-import { Type } from "@sinclair/typebox"
-import { eq } from "drizzle-orm"
 import { main } from "../../"
-
-const UserResponseSchema = Type.Object({
-    id: Type.String(),
-    type: Type.Union([Type.Literal("github"), Type.Literal("google")]),
-    email: Type.String(),
-    username: Type.String(),
-    name: Type.Optional(Type.String()),
-    avatar: Type.Optional(Type.String()),
-    lastSeen: Type.Optional(Type.String()),
-    createdAt: Type.String()
-})
-
-const AuthMeResponseSchema = Type.Object({
-    success: Type.Boolean(),
-    user: UserResponseSchema
-})
+import { eq } from "drizzle-orm"
 
 export default function SessionMe(fastify: Awaited<ReturnType<typeof main>>) {
     fastify.route({
@@ -29,9 +12,10 @@ export default function SessionMe(fastify: Awaited<ReturnType<typeof main>>) {
             description: "Get current authenticated user",
             tags: ["Session"],
             response: {
-                200: AuthMeResponseSchema,
-                "4xx": ErrorResponse,
-                "5xx": ErrorResponse
+                200: ReplyUserSchema,
+                401: ErrorResponse("Unauthorized - authentication required"),
+                404: ErrorResponse("User not found error"),
+                500: ErrorResponse("Internal server error")
             }
         },
         preHandler: fastify.authenticate,
@@ -44,17 +28,12 @@ export default function SessionMe(fastify: Awaited<ReturnType<typeof main>>) {
                 const currentUser = userData[0]
 
                 return reply.send({
-                    success: true,
-                    user: {
-                        id: currentUser.id,
-                        type: currentUser.type,
-                        email: currentUser.email,
-                        username: currentUser.username,
-                        name: currentUser.name ?? undefined,
-                        avatar: currentUser.avatar ?? undefined,
-                        lastSeen: currentUser.lastSeen?.toISOString(),
-                        createdAt: currentUser.createdAt?.toISOString() || new Date().toISOString()
-                    }
+                    id: currentUser.id,
+                    email: currentUser.email,
+                    username: currentUser.username,
+                    name: currentUser.name,
+                    avatar: currentUser.avatar,
+                    createdAt: currentUser.createdAt?.toISOString()
                 })
             } catch (error) {
                 if (isFastifyError(error)) {

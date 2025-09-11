@@ -3,11 +3,6 @@ import { ErrorResponse } from "../../type"
 import { Type } from "@sinclair/typebox"
 import { main } from "../../"
 
-const LogoutResponseSchema = Type.Object({
-    success: Type.Boolean(),
-    message: Type.String()
-})
-
 export default function SessionLogout(fastify: Awaited<ReturnType<typeof main>>) {
     fastify.route({
         method: "POST",
@@ -16,9 +11,17 @@ export default function SessionLogout(fastify: Awaited<ReturnType<typeof main>>)
             description: "Logout user and clear authentication",
             tags: ["Session"],
             response: {
-                200: LogoutResponseSchema,
-                "4xx": ErrorResponse,
-                "5xx": ErrorResponse
+                200: Type.Object(
+                    {
+                        success: Type.Boolean({ description: "Indicates if logout was successful" }),
+                        message: Type.String({ description: "Logout confirmation message" })
+                    },
+                    {
+                        description: "Response schema for successful logout operation"
+                    }
+                ),
+                401: ErrorResponse("Unauthorized - authentication required"),
+                500: ErrorResponse("Server error during logout")
             }
         },
         preHandler: fastify.authenticate,

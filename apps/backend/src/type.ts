@@ -25,13 +25,25 @@ declare global {
     }
 }
 
-export const ErrorResponse = Type.Object({
-    statusCode: Type.Number(),
-    error: Type.String(),
-    message: Type.String(),
-    details: Type.Optional(Type.Any())
-})
-
+export function ErrorResponse(description?: string) {
+    return Type.Object(
+        {
+            statusCode: Type.Number({
+                description: "HTTP status code of the error"
+            }),
+            error: Type.String({
+                description: "Error type or category"
+            }),
+            message: Type.String({
+                description: "Human-readable error message"
+            })
+        },
+        {
+            $id: "ErrorResponse",
+            description: description ?? "Standard error response format for API endpoints"
+        }
+    )
+}
 export const UserStatusSchema = Type.Union([Type.Literal("online"), Type.Literal("offline")])
 export const MessageStatusSchema = Type.Union([Type.Literal("sent"), Type.Literal("delivered"), Type.Literal("read")])
 export const OAuthProviderSchema = Type.Union([Type.Literal("github"), Type.Literal("google")])
@@ -68,16 +80,31 @@ export const UserSchema = Type.Object({
     createdAt: DateSchema
 })
 
-export const ReplyUserSchema = Type.Object({
-    id: Type.String(),
-    email: Type.String({ format: "email" }),
-    username: Type.String(),
-    name: Type.Union([Type.String(), Type.Null()]),
-    avatar: Type.Union([Type.String(), Type.Null()]),
-    status: UserStatusSchema,
-    lastSeen: DateSchema,
-    createdAt: DateSchema
-})
+export const ReplyUserSchema = Type.Object(
+    {
+        id: Type.String({
+            description: "Unique identifier for the user"
+        }),
+        email: Type.String({
+            description: "User's email address"
+        }),
+        username: Type.String({
+            description: "Unique username for the user account"
+        }),
+        name: Type.Union([Type.String(), Type.Null()], {
+            description: "User's display name (optional)"
+        }),
+        avatar: Type.Union([Type.String(), Type.Null()], {
+            description: "URL to user's avatar image (optional)"
+        }),
+        createdAt: Type.String({
+            description: "ISO timestamp of when user account was created"
+        })
+    },
+    {
+        description: "User profile information"
+    }
+)
 
 export const MessageSchema = Type.Object({
     id: Type.String(),

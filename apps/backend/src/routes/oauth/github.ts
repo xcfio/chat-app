@@ -24,13 +24,6 @@ export const GitHubUserSchema = Type.Object({
     updated_at: Type.Optional(Type.String())
 })
 
-const OAuthCallbackQuerySchema = Type.Object({
-    code: Type.Optional(Type.String()),
-    error: Type.Optional(Type.String()),
-    error_description: Type.Optional(Type.String()),
-    state: Type.Optional(Type.String())
-})
-
 export default function AuthGitHub(fastify: Awaited<ReturnType<typeof main>>) {
     fastify.route({
         method: "GET",
@@ -39,9 +32,15 @@ export default function AuthGitHub(fastify: Awaited<ReturnType<typeof main>>) {
             description: "Initiate GitHub OAuth login",
             tags: ["Authentication"],
             response: {
-                302: Type.Object({ message: Type.String() }),
-                "4xx": ErrorResponse,
-                "5xx": ErrorResponse
+                302: Type.Object(
+                    {
+                        message: Type.String({ description: "Redirect message" })
+                    },
+                    {
+                        description: "Redirect to Google OAuth authorization page"
+                    }
+                ),
+                500: ErrorResponse("Internal server error")
             }
         },
         handler: async (_, reply) => {
@@ -84,11 +83,28 @@ export default function AuthGitHub(fastify: Awaited<ReturnType<typeof main>>) {
         schema: {
             description: "Handle GitHub OAuth callback",
             tags: ["Authentication"],
-            querystring: OAuthCallbackQuerySchema,
+            querystring: Type.Object(
+                {
+                    code: Type.Optional(Type.String({ description: "Authorization code from GitHub OAuth" })),
+                    error: Type.Optional(Type.String({ description: "Error code if OAuth failed" })),
+                    error_description: Type.Optional(Type.String({ description: "Human-readable error description" })),
+                    state: Type.Optional(Type.String({ description: "CSRF protection state parameter" }))
+                },
+                {
+                    description: "GitHub OAuth callback query parameters"
+                }
+            ),
             response: {
-                302: Type.Object({ message: Type.String() }),
-                "4xx": ErrorResponse,
-                "5xx": ErrorResponse
+                302: Type.Object(
+                    {
+                        message: Type.String({ description: "OAuth callback response message" })
+                    },
+                    {
+                        description: "Successful OAuth callback redirect"
+                    }
+                ),
+                400: ErrorResponse("Bad request - OAuth callback error"),
+                500: ErrorResponse("Internal server error")
             }
         },
         handler: async (request, reply) => {

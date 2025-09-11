@@ -1,34 +1,11 @@
+import { ErrorResponse, JWTPayload, ReplyUserSchema } from "../../type"
 import { CreateError, isFastifyError } from "../../function"
-import { ErrorResponse, JWTPayload } from "../../type"
 import { GitHubUserSchema } from "../oauth/github"
 import { GoogleUserSchema } from "../oauth/google"
 import { Static, Type } from "@sinclair/typebox"
 import { db, table } from "../../database"
 import { main } from "../../"
 import { eq } from "drizzle-orm"
-
-const UserResponseSchema = Type.Object({
-    id: Type.String(),
-    type: Type.Union([Type.Literal("github"), Type.Literal("google")]),
-    email: Type.String(),
-    username: Type.String(),
-    name: Type.Optional(Type.String()),
-    avatar: Type.Optional(Type.String()),
-    lastSeen: Type.Optional(Type.String()),
-    createdAt: Type.String()
-})
-
-const RefreshResponseSchema = Type.Object({
-    success: Type.Boolean(),
-    user: UserResponseSchema,
-    token: Type.Optional(Type.String())
-})
-
-const AuthErrorSchema = Type.Object({
-    statusCode: Type.Number(),
-    error: Type.String(),
-    message: Type.String()
-})
 
 export default function SessionRefresh(fastify: Awaited<ReturnType<typeof main>>) {
     fastify.route({
@@ -38,9 +15,11 @@ export default function SessionRefresh(fastify: Awaited<ReturnType<typeof main>>
             description: "Refresh user data from OAuth provider",
             tags: ["Session"],
             response: {
-                200: RefreshResponseSchema,
-                "4xx": ErrorResponse,
-                "5xx": ErrorResponse
+                200: ReplyUserSchema,
+                400: ErrorResponse("Bad request - invalid data or missing token"),
+                401: ErrorResponse("Unauthorized - token expired or invalid"),
+                404: ErrorResponse("User not found"),
+                500: ErrorResponse("Internal server error")
             }
         },
         preHandler: fastify.authenticate,
@@ -167,7 +146,7 @@ export default function SessionRefresh(fastify: Awaited<ReturnType<typeof main>>
                     }
                 }
 
-                const updatedUser = await db
+                const [updatedUser] = await db
                     .update(table.user)
                     .set({
                         ...updatedUserData,
@@ -177,17 +156,17 @@ export default function SessionRefresh(fastify: Awaited<ReturnType<typeof main>>
                     .where(eq(table.user.id, currentUser.id))
                     .returning()
 
-                if (!updatedUser.length) {
+                if (!updatedUser) {
                     throw CreateError(404, "USER_NOT_FOUND", "User not found")
                 }
 
                 const jwtPayload: JWTPayload = {
                     type: "google",
-                    id: updatedUser[0].id,
-                    email: updatedUser[0].email,
-                    username: updatedUser[0].username,
-                    name: updatedUser[0].name,
-                    avatar: updatedUser[0].avatar,
+                    id: updatedUser.id,
+                    email: updatedUser.email,
+                    username: updatedUser.username,
+                    name: updatedUser.name,
+                    avatar: updatedUser.avatar,
                     token: newAccessToken,
                     iat: Math.floor(Date.now() / 1000),
                     exp: tokenExpiration
@@ -206,18 +185,12 @@ export default function SessionRefresh(fastify: Awaited<ReturnType<typeof main>>
                 })
 
                 return reply.send({
-                    success: true,
-                    user: {
-                        id: updatedUser[0].id,
-                        type: updatedUser[0].type,
-                        email: updatedUser[0].email,
-                        username: updatedUser[0].username,
-                        name: updatedUser[0].name ?? undefined,
-                        avatar: updatedUser[0].avatar ?? undefined,
-                        lastSeen: updatedUser[0].lastSeen?.toISOString(),
-                        createdAt: updatedUser[0].createdAt?.toISOString() || new Date().toISOString()
-                    },
-                    token: newJwtToken
+                    id: updatedUser.id,
+                    email: updatedUser.email,
+                    username: updatedUser.username,
+                    name: updatedUser.name,
+                    avatar: updatedUser.avatar,
+                    createdAt: updatedUser.createdAt.toISOString()
                 })
             } catch (error) {
                 if (isFastifyError(error)) {
