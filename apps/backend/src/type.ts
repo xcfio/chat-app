@@ -1,4 +1,4 @@
-import { Type } from "@sinclair/typebox"
+import { Type, Static } from "@sinclair/typebox"
 import { Server } from "socket.io"
 
 declare module "fastify" {
@@ -32,75 +32,102 @@ export const ErrorResponse = Type.Object({
     details: Type.Optional(Type.Any())
 })
 
-export type UserStatus = "online" | "offline"
-export type MessageStatus = "sent" | "delivered" | "read"
-export type OAuthProvider = "github" | "google"
+export const UserStatusSchema = Type.Union([Type.Literal("online"), Type.Literal("offline")])
+export const MessageStatusSchema = Type.Union([Type.Literal("sent"), Type.Literal("delivered"), Type.Literal("read")])
+export const OAuthProviderSchema = Type.Union([Type.Literal("github"), Type.Literal("google")])
+const DateSchema = Type.Unsafe<Date>({ type: "object", instanceOf: "Date" })
 
-export interface AuthUser {
-    id: string
-    email: string
-    username: string
-    avatar?: string
-}
+export const AuthUserSchema = Type.Object({
+    id: Type.String(),
+    email: Type.String({ format: "email" }),
+    username: Type.String(),
+    avatar: Type.Optional(Type.String())
+})
 
-export interface JWTPayload {
-    id: string
-    email: string
-    username: string
-    name: string | null
-    avatar: string | null
-    token: string
-    iat: number
-    exp: number
-}
+export const JWTPayloadSchema = Type.Object({
+    id: Type.String(),
+    email: Type.String({ format: "email" }),
+    username: Type.String(),
+    name: Type.Union([Type.String(), Type.Null()]),
+    avatar: Type.Union([Type.String(), Type.Null()]),
+    type: OAuthProviderSchema,
+    token: Type.String(),
+    iat: Type.Number(),
+    exp: Type.Number()
+})
 
-export interface User {
-    id: string
-    type: OAuthProvider
-    token: string
-    email: string
-    username: string
-    name: string | null
-    avatar: string | null
-    status: UserStatus
-    lastSeen: Date
-    createdAt: Date
-}
+export const UserSchema = Type.Object({
+    id: Type.String(),
+    type: OAuthProviderSchema,
+    token: Type.String(),
+    email: Type.String({ format: "email" }),
+    username: Type.String(),
+    name: Type.Union([Type.String(), Type.Null()]),
+    avatar: Type.Union([Type.String(), Type.Null()]),
+    lastSeen: DateSchema,
+    createdAt: DateSchema
+})
 
-export interface Message {
-    id: string
-    content: string
-    status: MessageStatus
-    createdAt: Date
-    sender: User["id"]
-    receiver: User["id"]
-}
+export const ReplyUserSchema = Type.Object({
+    id: Type.String(),
+    type: OAuthProviderSchema,
+    token: Type.String(),
+    email: Type.String({ format: "email" }),
+    username: Type.String(),
+    name: Type.Union([Type.String(), Type.Null()]),
+    avatar: Type.Union([Type.String(), Type.Null()]),
+    status: UserStatusSchema,
+    lastSeen: DateSchema,
+    createdAt: DateSchema
+})
 
-export interface Conversation {
-    id: string
-    participants: [User["id"], User["id"]]
-    lastMessage?: Message["id"]
-    updatedAt: Date
-}
+export const MessageSchema = Type.Object({
+    id: Type.String(),
+    content: Type.String(),
+    status: MessageStatusSchema,
+    createdAt: DateSchema,
+    sender: Type.String(),
+    receiver: Type.String()
+})
 
-export interface ServerToClientEvents {
-    new_message: (message: Message) => void
-    message_read: (messageId: string) => void
-    user_status_changed: (userId: string, status: UserStatus) => void
-    user_typing: (userId: string, isTyping: boolean) => void
-    error: (error: { message: string; code: string }) => void
-}
+export const ConversationSchema = Type.Object({
+    id: Type.String(),
+    participants: Type.Tuple([Type.String(), Type.String()]),
+    lastMessage: Type.Optional(Type.String()),
+    updatedAt: DateSchema
+})
 
-export interface ClientToServerEvents {
-    send_message: (receiverId: string, content: string) => void
-    mark_message_read: (messageId: string) => void
-    update_status: (status: UserStatus) => void
-    start_typing: (receiverId: string) => void
-    stop_typing: (receiverId: string) => void
-}
+export const ServerToClientEventsSchema = Type.Object({
+    new_message: Type.Function([MessageSchema], Type.Void()),
+    message_read: Type.Function([Type.String()], Type.Void()),
+    user_status_changed: Type.Function([Type.String(), UserStatusSchema], Type.Void()),
+    user_typing: Type.Function([Type.String(), Type.Boolean()], Type.Void()),
+    error: Type.Function(
+        [
+            Type.Object({
+                message: Type.String(),
+                code: Type.String()
+            })
+        ],
+        Type.Void()
+    )
+})
 
-export interface ApiResponse<T = any> {
-    success: boolean
-    data?: T
-    error?: string
-}
+export const ClientToServerEventsSchema = Type.Object({
+    send_message: Type.Function([Type.String(), Type.String()], Type.Void()),
+    mark_message_read: Type.Function([Type.String()], Type.Void()),
+    update_status: Type.Function([UserStatusSchema], Type.Void()),
+    start_typing: Type.Function([Type.String()], Type.Void()),
+    stop_typing: Type.Function([Type.String()], Type.Void())
+})
+
+export type UserStatus = Static<typeof UserStatusSchema>
+export type MessageStatus = Static<typeof MessageStatusSchema>
+export type OAuthProvider = Static<typeof OAuthProviderSchema>
+export type AuthUser = Static<typeof AuthUserSchema>
+export type JWTPayload = Static<typeof JWTPayloadSchema>
+export type User = Static<typeof UserSchema>
+export type Message = Static<typeof MessageSchema>
+export type Conversation = Static<typeof ConversationSchema>
+export type ServerToClientEvents = Static<typeof ServerToClientEventsSchema>
+export type ClientToServerEvents = Static<typeof ClientToServerEventsSchema>

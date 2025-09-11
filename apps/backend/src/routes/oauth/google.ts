@@ -5,7 +5,7 @@ import { main } from "../../"
 import { Type, Static } from "@sinclair/typebox"
 import { randomBytes } from "node:crypto"
 
-const GoogleUserSchema = Type.Object({
+export const GoogleUserSchema = Type.Object({
     id: Type.String(),
     email: Type.String(),
     verified_email: Type.Boolean(),
