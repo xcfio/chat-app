@@ -32,7 +32,7 @@
         "postgres": "^3.4.7",
         "socket.io": "^4.8.1",
         "typescript": "^5.9.2",
-        "uuid": "^11.1.0"
+        "uuid": "^13.0.0"
     },
     "devDependencies": {
         "@types/node": "^24",
