@@ -10,12 +10,12 @@ export default function SessionMe(fastify: Awaited<ReturnType<typeof main>>) {
         url: "/auth/me",
         schema: {
             description: "Get current authenticated user",
-            tags: ["Session"],
+            tags: ["Sessions"],
             response: {
                 200: ReplyUserSchema,
-                401: ErrorResponse("Unauthorized - authentication required"),
-                404: ErrorResponse("User not found error"),
-                500: ErrorResponse("Internal server error")
+                401: ErrorResponse(401, "Unauthorized - authentication required"),
+                404: ErrorResponse(404, "User not found error"),
+                500: ErrorResponse(500, "Internal server error")
             }
         },
         preHandler: fastify.authenticate,

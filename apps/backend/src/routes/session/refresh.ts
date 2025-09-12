@@ -13,13 +13,13 @@ export default function SessionRefresh(fastify: Awaited<ReturnType<typeof main>>
         url: "/auth/refresh",
         schema: {
             description: "Refresh user data from OAuth provider",
-            tags: ["Session"],
+            tags: ["Sessions"],
             response: {
                 200: ReplyUserSchema,
-                400: ErrorResponse("Bad request - invalid data or missing token"),
-                401: ErrorResponse("Unauthorized - token expired or invalid"),
-                404: ErrorResponse("User not found"),
-                500: ErrorResponse("Internal server error")
+                400: ErrorResponse(400, "Bad request - invalid data or missing token"),
+                401: ErrorResponse(401, "Unauthorized - token expired or invalid"),
+                404: ErrorResponse(404, "User not found"),
+                500: ErrorResponse(500, "Internal server error")
             }
         },
         preHandler: fastify.authenticate,

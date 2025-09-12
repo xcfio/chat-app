@@ -1,7 +1,5 @@
-import SwaggerUI from "@fastify/swagger-ui"
 import Swagger from "@fastify/swagger"
 import { bugs, license } from "../../package.json"
-import { SCSS } from "../function/css"
 import { main } from "../"
 
 export default async function swagger(fastify: Awaited<ReturnType<typeof main>>) {
@@ -31,10 +29,6 @@ export default async function swagger(fastify: Awaited<ReturnType<typeof main>>)
                     description: "OAuth authentication and session management endpoints"
                 },
                 {
-                    name: "Users",
-                    description: "User profile management and discovery endpoints"
-                },
-                {
                     name: "Conversations",
                     description: "Direct conversation management endpoints"
                 },
@@ -43,53 +37,18 @@ export default async function swagger(fastify: Awaited<ReturnType<typeof main>>)
                     description: "Message operations and status management endpoints"
                 },
                 {
+                    name: "Users",
+                    description: "User profile management and discovery endpoints"
+                },
+                {
                     name: "Search",
                     description: "Search functionality for users and messages"
                 },
                 {
-                    name: "Health",
-                    description: "System health and status endpoints"
+                    name: "Sessions",
+                    description: "User session management endpoints"
                 }
             ]
-        }
-    })
-
-    await fastify.register(SwaggerUI, {
-        routePrefix: "/",
-        staticCSP: true,
-        transformSpecificationClone: true,
-        uiConfig: {
-            defaultModelRendering: "example",
-            docExpansion: "list",
-            displayRequestDuration: true,
-            showCommonExtensions: false,
-            displayOperationId: false,
-            tryItOutEnabled: false,
-            showExtensions: false,
-            deepLinking: false,
-            filter: true,
-            defaultModelsExpandDepth: 1,
-            defaultModelExpandDepth: 1,
-            supportedSubmitMethods: []
-        },
-        theme: {
-            title: "Chat App API Documentation",
-            css: [
-                {
-                    filename: "custom.css",
-                    content: SCSS
-                }
-            ]
-        },
-        logo: {
-            type: "image/svg+xml",
-            href: "https://github.com/xcfio/chat-app",
-            target: "_blank",
-            content: await (
-                await fetch(
-                    "https://raw.githubusercontent.com/xcfio/chat-app/refs/heads/main/apps/frontend/public/favicon.svg"
-                )
-            ).text()
         }
     })
 }

@@ -32,7 +32,7 @@ export default function AuthGoogle(fastify: Awaited<ReturnType<typeof main>>) {
                         description: "Redirect to Google OAuth authorization page"
                     }
                 ),
-                500: ErrorResponse("Internal server error")
+                500: ErrorResponse(500, "Internal server error")
             }
         },
         handler: async (_, reply) => {
@@ -118,8 +118,8 @@ export default function AuthGoogle(fastify: Awaited<ReturnType<typeof main>>) {
                         description: "Successful OAuth callback redirect"
                     }
                 ),
-                400: ErrorResponse("Bad request - OAuth callback error"),
-                500: ErrorResponse("Internal server error")
+                400: ErrorResponse(400, "Bad request - OAuth callback error"),
+                500: ErrorResponse(500, "Internal server error")
             }
         },
         handler: async (request, reply) => {

@@ -1,6 +1,8 @@
 import { CreateError, isFastifyError, ValidationErrorHandler } from "./function"
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox"
 import { FastifyReply, FastifyRequest } from "fastify"
+import { JWTPayload, JWTPayloadSchema } from "./type"
+import { Value } from "@sinclair/typebox/value"
 import Fastify from "fastify"
 import Routes from "./routes"
 import Socket from "./socket"
@@ -22,9 +24,51 @@ export async function main() {
 
     fastify.decorate("authenticate", async function (request: FastifyRequest, reply: FastifyReply) {
         try {
-            await request.jwtVerify()
+            const user = (await request.jwtVerify()) as JWTPayload
+
+            if (!Value.Check(JWTPayloadSchema, user)) {
+                reply.clearCookie("auth", {
+                    path: "/",
+                    signed: true,
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "strict"
+                })
+
+                throw CreateError(401, "INVALID_TOKEN_PAYLOAD", "Invalid authentication token structure")
+            }
+
+            request.user = user
         } catch (error) {
-            throw CreateError(401, "NOT_AUTHENTICATED", "Authentication required")
+            if (isFastifyError(error)) {
+                if (
+                    error.code === "FST_JWT_NO_AUTHORIZATION_IN_COOKIE" ||
+                    error.code === "FST_JWT_NO_AUTHORIZATION_IN_HEADER"
+                ) {
+                    throw CreateError(401, "NO_TOKEN", "Authentication token not provided")
+                }
+
+                if (error.code === "FST_JWT_AUTHORIZATION_TOKEN_EXPIRED") {
+                    throw CreateError(401, "TOKEN_EXPIRED", "Authentication token has expired")
+                }
+
+                if (error.code === "FST_JWT_AUTHORIZATION_TOKEN_INVALID") {
+                    throw CreateError(401, "INVALID_TOKEN", "Invalid authentication token")
+                }
+
+                reply.clearCookie("auth", {
+                    path: "/",
+                    signed: true,
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "strict"
+                })
+
+                throw CreateError(401, "AUTHENTICATION_FAILED", "Authentication failed")
+            } else {
+                console.trace(error)
+                throw CreateError(500, "INTERNAL_SERVER_ERROR", "Internal Server Error")
+            }
         }
     })
 

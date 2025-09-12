@@ -1,9 +1,11 @@
 import { Type, Static } from "@sinclair/typebox"
 import { Server } from "socket.io"
+import { v7 } from "uuid"
 
 declare module "fastify" {
     interface FastifyInstance {
         authenticate: (request: FastifyRequest, reply: FastifyReply) => void
+        user: Static<typeof JWTPayloadSchema>
         io: Server
     }
 }
@@ -25,10 +27,11 @@ declare global {
     }
 }
 
-export function ErrorResponse(description?: string) {
+export function ErrorResponse(code: number, description?: string) {
     return Type.Object(
         {
             statusCode: Type.Number({
+                examples: [code],
                 description: "HTTP status code of the error"
             }),
             error: Type.String({
@@ -49,15 +52,8 @@ export const MessageStatusSchema = Type.Union([Type.Literal("sent"), Type.Litera
 export const OAuthProviderSchema = Type.Union([Type.Literal("github"), Type.Literal("google")])
 const DateSchema = Type.Unsafe<Date>({ type: "object", instanceOf: "Date" })
 
-export const AuthUserSchema = Type.Object({
-    id: Type.String(),
-    email: Type.String({ format: "email" }),
-    username: Type.String(),
-    avatar: Type.Optional(Type.String())
-})
-
 export const JWTPayloadSchema = Type.Object({
-    id: Type.String(),
+    id: Type.String({ format: "uuid" }),
     email: Type.String({ format: "email" }),
     username: Type.String(),
     name: Type.Union([Type.String(), Type.Null()]),
@@ -69,7 +65,7 @@ export const JWTPayloadSchema = Type.Object({
 })
 
 export const UserSchema = Type.Object({
-    id: Type.String(),
+    id: Type.String({ format: "uuid" }),
     type: OAuthProviderSchema,
     token: Type.String(),
     email: Type.String({ format: "email" }),
@@ -83,21 +79,45 @@ export const UserSchema = Type.Object({
 export const ReplyUserSchema = Type.Object(
     {
         id: Type.String({
+            examples: [v7()],
+            format: "uuid",
             description: "Unique identifier for the user"
         }),
         email: Type.String({
+            format: "email",
             description: "User's email address"
         }),
         username: Type.String({
             description: "Unique username for the user account"
         }),
-        name: Type.Union([Type.String(), Type.Null()], {
-            description: "User's display name (optional)"
-        }),
-        avatar: Type.Union([Type.String(), Type.Null()], {
-            description: "URL to user's avatar image (optional)"
-        }),
+        name: Type.Union(
+            [
+                Type.String({
+                    description: "User's display name if it exists"
+                }),
+                Type.Null({
+                    description: "Null if no display name is set"
+                })
+            ],
+            {
+                description: "User's display name (optional)"
+            }
+        ),
+        avatar: Type.Union(
+            [
+                Type.String({
+                    description: "URL to the user's avatar image if it exists"
+                }),
+                Type.Null({
+                    description: "Null if no avatar is set"
+                })
+            ],
+            {
+                description: "User's avatar image (optional)"
+            }
+        ),
         createdAt: Type.String({
+            format: "date-time",
             description: "ISO timestamp of when user account was created"
         })
     },
@@ -107,7 +127,7 @@ export const ReplyUserSchema = Type.Object(
 )
 
 export const MessageSchema = Type.Object({
-    id: Type.String(),
+    id: Type.String({ format: "uuid" }),
     content: Type.String(),
     status: MessageStatusSchema,
     createdAt: DateSchema,
@@ -116,7 +136,7 @@ export const MessageSchema = Type.Object({
 })
 
 export const ConversationSchema = Type.Object({
-    id: Type.String(),
+    id: Type.String({ format: "uuid" }),
     participants: Type.Tuple([Type.String(), Type.String()]),
     lastMessage: Type.Optional(Type.String()),
     updatedAt: DateSchema
@@ -149,7 +169,6 @@ export const ClientToServerEventsSchema = Type.Object({
 export type UserStatus = Static<typeof UserStatusSchema>
 export type MessageStatus = Static<typeof MessageStatusSchema>
 export type OAuthProvider = Static<typeof OAuthProviderSchema>
-export type AuthUser = Static<typeof AuthUserSchema>
 export type JWTPayload = Static<typeof JWTPayloadSchema>
 export type User = Static<typeof UserSchema>
 export type Message = Static<typeof MessageSchema>

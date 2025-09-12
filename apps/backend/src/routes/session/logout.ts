@@ -9,7 +9,7 @@ export default function SessionLogout(fastify: Awaited<ReturnType<typeof main>>)
         url: "/auth/logout",
         schema: {
             description: "Logout user and clear authentication",
-            tags: ["Session"],
+            tags: ["Sessions"],
             response: {
                 200: Type.Object(
                     {
@@ -20,8 +20,8 @@ export default function SessionLogout(fastify: Awaited<ReturnType<typeof main>>)
                         description: "Response schema for successful logout operation"
                     }
                 ),
-                401: ErrorResponse("Unauthorized - authentication required"),
-                500: ErrorResponse("Server error during logout")
+                401: ErrorResponse(401, "Unauthorized - authentication required"),
+                500: ErrorResponse(500, "Internal server error")
             }
         },
         preHandler: fastify.authenticate,
