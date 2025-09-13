@@ -1,5 +1,5 @@
 import { CreateError, isFastifyError } from "../../function"
-import { ErrorResponse, ReplyUserSchema } from "../../type"
+import { ErrorResponse, User } from "../../type"
 import { and, or, ilike, desc } from "drizzle-orm"
 import { db, table } from "../../database"
 import { Type } from "@sinclair/typebox"
@@ -35,7 +35,11 @@ export default function GetUserWithoutID(fastify: Awaited<ReturnType<typeof main
                 }
             ),
             response: {
-                200: Type.Array(ReplyUserSchema, { maxItems: 100 }),
+                200: Type.Array(User, {
+                    description: "Array of user objects matching the search criteria",
+                    maxItems: 100,
+                    minItems: 1
+                }),
                 401: ErrorResponse(401, "Unauthorized - authentication required"),
                 404: ErrorResponse(404, "List not found error"),
                 500: ErrorResponse(500, "Internal server error")

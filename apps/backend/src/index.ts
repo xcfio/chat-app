@@ -1,8 +1,8 @@
 import { CreateError, isFastifyError, ValidationErrorHandler } from "./function"
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox"
 import { FastifyReply, FastifyRequest } from "fastify"
-import { JWTPayload, JWTPayloadSchema } from "./type"
 import { Value } from "@sinclair/typebox/value"
+import { JWTPayload } from "./type"
 import Fastify from "fastify"
 import Routes from "./routes"
 import Socket from "./socket"
@@ -26,7 +26,7 @@ export async function main() {
         try {
             const user = (await request.jwtVerify()) as JWTPayload
 
-            if (!Value.Check(JWTPayloadSchema, user)) {
+            if (!Value.Check(JWTPayload, user)) {
                 reply.clearCookie("auth", {
                     path: "/",
                     signed: true,

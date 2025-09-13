@@ -1,5 +1,5 @@
 import { CreateError, isFastifyError } from "../../function"
-import { ErrorResponse, ReplyUserSchema } from "../../type"
+import { ErrorResponse, User } from "../../type"
 import { db, table } from "../../database"
 import { Type } from "@sinclair/typebox"
 import { eq } from "drizzle-orm"
@@ -14,7 +14,7 @@ export default function GetUserWithID(fastify: Awaited<ReturnType<typeof main>>)
             tags: ["Users"],
             params: Type.Object({ id: Type.String({ format: "uuid", description: "Id of user" }) }),
             response: {
-                200: ReplyUserSchema,
+                200: User,
                 401: ErrorResponse(401, "Unauthorized - authentication required"),
                 404: ErrorResponse(404, "User not found error"),
                 500: ErrorResponse(500, "Internal server error")

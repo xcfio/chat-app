@@ -1,25 +1,30 @@
-import { ErrorResponse, Message } from "../../type"
 import { CreateError, isFastifyError } from "../../function"
+import { ErrorResponse } from "../../type"
 import { Type } from "@sinclair/typebox"
 import { main } from "../../"
 
-export default function SendMessage(fastify: Awaited<ReturnType<typeof main>>) {
+export function DeleteConversation(fastify: Awaited<ReturnType<typeof main>>) {
     fastify.route({
-        method: "POST",
-        url: "/conversations/:id/messages",
+        method: "DELETE",
+        url: "/conversations/:id",
         schema: {
-            description: "Send a new message to a conversation",
-            tags: ["Messages"],
+            description: "Delete a conversation",
+            tags: ["Conversations"],
             params: Type.Object({
                 id: Type.String({ format: "uuid", description: "Id of the conversation" })
             }),
-            body: Type.Object({
-                content: Type.String({ minLength: 1, maxLength: 2000, description: "Message content" })
-            }),
             response: {
-                201: Message,
-                400: ErrorResponse(400, "Bad request - invalid message content"),
+                200: Type.Object(
+                    {
+                        success: Type.Boolean({ description: "Indicates if conversation is deleted" }),
+                        message: Type.String({ description: "Confirmation message of deleted conversation" })
+                    },
+                    {
+                        description: "Response schema for deleting conversation"
+                    }
+                ),
                 401: ErrorResponse(401, "Unauthorized - authentication required"),
+                403: ErrorResponse(403, "Forbidden - not authorized to delete this conversation"),
                 404: ErrorResponse(404, "Conversation not found error"),
                 500: ErrorResponse(500, "Internal server error")
             }
@@ -27,7 +32,7 @@ export default function SendMessage(fastify: Awaited<ReturnType<typeof main>>) {
         preHandler: fastify.authenticate,
         handler: async (request, reply) => {
             try {
-                // TODO: Implement this logic
+                // TODO: Implement delete conversation logic
             } catch (error) {
                 if (isFastifyError(error)) {
                     throw error

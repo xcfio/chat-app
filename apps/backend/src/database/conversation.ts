@@ -14,7 +14,6 @@ export const conversation = pgTable("conversation", {
     p2: uuid("p2")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
-    lastMessageId: uuid("last_message_id").references(() => message.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at", { withTimezone: false }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: false })
         .defaultNow()

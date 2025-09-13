@@ -1,4 +1,4 @@
-import { ErrorResponse, JWTPayload, ReplyUserSchema } from "../../type"
+import { ErrorResponse, JWTPayload, User } from "../../type"
 import { CreateError, isFastifyError } from "../../function"
 import { GitHubUserSchema } from "../oauth/github"
 import { GoogleUserSchema } from "../oauth/google"
@@ -15,7 +15,7 @@ export default function SessionRefresh(fastify: Awaited<ReturnType<typeof main>>
             description: "Refresh user data from OAuth provider",
             tags: ["Sessions"],
             response: {
-                200: ReplyUserSchema,
+                200: User,
                 400: ErrorResponse(400, "Bad request - invalid data or missing token"),
                 401: ErrorResponse(401, "Unauthorized - token expired or invalid"),
                 404: ErrorResponse(404, "User not found"),

@@ -5,7 +5,7 @@ import { v7 } from "uuid"
 declare module "fastify" {
     interface FastifyInstance {
         authenticate: (request: FastifyRequest, reply: FastifyReply) => void
-        user: Static<typeof JWTPayloadSchema>
+        user: Static<typeof JWTPayload>
         io: Server
     }
 }
@@ -48,15 +48,12 @@ export function ErrorResponse(code: number, description?: string) {
     )
 }
 
-export const UserStatusSchema = Type.Union([Type.Literal("online"), Type.Literal("offline")])
-export const OAuthProviderSchema = Type.Union([Type.Literal("github"), Type.Literal("google")])
-const DateSchema = Type.Unsafe<Date>({
-    type: "object",
-    instanceOf: "Date",
-    description: "JavaScript Date object for timestamp values"
-})
-
-export const MessageStatusSchema = Type.Union(
+export type UserStatus = Static<typeof UserStatus>
+export type OAuthProvider = Static<typeof OAuthProvider>
+export type MessageStatus = Static<typeof MessageStatus>
+export const UserStatus = Type.Union([Type.Literal("online"), Type.Literal("offline")])
+export const OAuthProvider = Type.Union([Type.Literal("github"), Type.Literal("google")])
+export const MessageStatus = Type.Union(
     [
         Type.Literal("sent", {
             description: "Message has been sent but not yet delivered to recipient"
@@ -76,41 +73,21 @@ export const MessageStatusSchema = Type.Union(
     }
 )
 
-export const JWTPayloadSchema = Type.Object({
+export type JWTPayload = Static<typeof JWTPayload>
+export const JWTPayload = Type.Object({
     id: Type.String({ format: "uuid" }),
     email: Type.String({ format: "email" }),
     username: Type.String(),
     name: Type.Union([Type.String(), Type.Null()]),
     avatar: Type.Union([Type.String(), Type.Null()]),
-    type: OAuthProviderSchema,
+    type: OAuthProvider,
     token: Type.String(),
     iat: Type.Number(),
     exp: Type.Number()
 })
 
-export const UserSchema = Type.Object({
-    id: Type.String({ format: "uuid" }),
-    type: OAuthProviderSchema,
-    token: Type.String(),
-    email: Type.String({ format: "email" }),
-    username: Type.String(),
-    name: Type.Union([Type.String(), Type.Null()]),
-    avatar: Type.Union([Type.String(), Type.Null()]),
-    lastSeen: DateSchema,
-    createdAt: DateSchema
-})
-
-export const MessageSchema = Type.Object({
-    id: Type.String({ format: "uuid" }),
-    content: Type.String({ maxLength: 2000 }),
-    status: MessageStatusSchema,
-    createdAt: DateSchema,
-    editedAt: Type.Union([DateSchema, Type.Null()]),
-    sender: Type.String(),
-    receiver: Type.String()
-})
-
-export const ReplyUserSchema = Type.Object(
+export type User = Static<typeof User>
+export const User = Type.Object(
     {
         id: Type.String({
             examples: [v7()],
@@ -161,7 +138,8 @@ export const ReplyUserSchema = Type.Object(
     }
 )
 
-export const ReplyMessageSchema = Type.Object(
+export type Message = Static<typeof Message>
+export const Message = Type.Object(
     {
         id: Type.String({
             examples: [v7()],
@@ -180,7 +158,7 @@ export const ReplyMessageSchema = Type.Object(
             examples: [v7()],
             description: "UUID of the user who will receive the message"
         }),
-        status: MessageStatusSchema,
+        status: MessageStatus,
         createdAt: Type.String({
             format: "date-time",
             description: "ISO timestamp when the message was first created"
@@ -200,17 +178,35 @@ export const ReplyMessageSchema = Type.Object(
     }
 )
 
-export const ConversationSchema = Type.Object({
-    id: Type.String({ format: "uuid" }),
-    participants: Type.Tuple([Type.String(), Type.String()]),
-    lastMessage: Type.Optional(Type.String()),
-    updatedAt: DateSchema
+export type Conversation = Static<typeof Conversation>
+export const Conversation = Type.Object({
+    id: Type.String({
+        format: "uuid",
+        description: "Unique identifier for the conversation"
+    }),
+    p1: Type.String({
+        format: "uuid",
+        description: "User ID of the first participant in the conversation"
+    }),
+    p2: Type.String({
+        format: "uuid",
+        description: "User ID of the second participant in the conversation"
+    }),
+    createdAt: Type.String({
+        format: "date-time",
+        description: "ISO timestamp when the conversation was created"
+    }),
+    updatedAt: Type.String({
+        format: "date-time",
+        description: "ISO timestamp when the conversation was last updated (last message sent)"
+    })
 })
 
-export const ServerToClientEventsSchema = Type.Object({
-    new_message: Type.Function([MessageSchema], Type.Void()),
+export type ServerToClientEvents = Static<typeof ServerToClientEvents>
+export const ServerToClientEvents = Type.Object({
+    new_message: Type.Function([Message], Type.Void()),
     message_read: Type.Function([Type.String()], Type.Void()),
-    user_status_changed: Type.Function([Type.String(), UserStatusSchema], Type.Void()),
+    user_status_changed: Type.Function([Type.String(), UserStatus], Type.Void()),
     user_typing: Type.Function([Type.String(), Type.Boolean()], Type.Void()),
     error: Type.Function(
         [
@@ -223,20 +219,11 @@ export const ServerToClientEventsSchema = Type.Object({
     )
 })
 
-export const ClientToServerEventsSchema = Type.Object({
+export type ClientToServerEvents = Static<typeof ClientToServerEvents>
+export const ClientToServerEvents = Type.Object({
     send_message: Type.Function([Type.String(), Type.String()], Type.Void()),
     mark_message_read: Type.Function([Type.String()], Type.Void()),
-    update_status: Type.Function([UserStatusSchema], Type.Void()),
+    update_status: Type.Function([UserStatus], Type.Void()),
     start_typing: Type.Function([Type.String()], Type.Void()),
     stop_typing: Type.Function([Type.String()], Type.Void())
 })
-
-export type UserStatus = Static<typeof UserStatusSchema>
-export type MessageStatus = Static<typeof MessageStatusSchema>
-export type OAuthProvider = Static<typeof OAuthProviderSchema>
-export type JWTPayload = Static<typeof JWTPayloadSchema>
-export type User = Static<typeof UserSchema>
-export type Message = Static<typeof MessageSchema>
-export type Conversation = Static<typeof ConversationSchema>
-export type ServerToClientEvents = Static<typeof ServerToClientEventsSchema>
-export type ClientToServerEvents = Static<typeof ClientToServerEventsSchema>

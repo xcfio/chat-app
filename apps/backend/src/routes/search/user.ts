@@ -1,33 +1,32 @@
-import { ErrorResponse, Message } from "../../type"
 import { CreateError, isFastifyError } from "../../function"
+import { ErrorResponse, User } from "../../type"
 import { Type } from "@sinclair/typebox"
 import { main } from "../../"
 
-export default function SendMessage(fastify: Awaited<ReturnType<typeof main>>) {
+export function SearchUsers(fastify: Awaited<ReturnType<typeof main>>) {
     fastify.route({
-        method: "POST",
-        url: "/conversations/:id/messages",
+        method: "GET",
+        url: "/search/users",
         schema: {
-            description: "Send a new message to a conversation",
-            tags: ["Messages"],
-            params: Type.Object({
-                id: Type.String({ format: "uuid", description: "Id of the conversation" })
-            }),
-            body: Type.Object({
-                content: Type.String({ minLength: 1, maxLength: 2000, description: "Message content" })
+            description: "Search for users by username or email",
+            tags: ["Search"],
+            querystring: Type.Object({
+                query: Type.String({ minLength: 1, description: "Search query" }),
+                limit: Type.Optional(
+                    Type.Number({ minimum: 1, maximum: 50, default: 10, description: "Results limit" })
+                )
             }),
             response: {
-                201: Message,
-                400: ErrorResponse(400, "Bad request - invalid message content"),
+                200: User,
+                400: ErrorResponse(400, "Bad request - search query is required"),
                 401: ErrorResponse(401, "Unauthorized - authentication required"),
-                404: ErrorResponse(404, "Conversation not found error"),
                 500: ErrorResponse(500, "Internal server error")
             }
         },
         preHandler: fastify.authenticate,
         handler: async (request, reply) => {
             try {
-                // TODO: Implement this logic
+                // TODO: Implement search users logic
             } catch (error) {
                 if (isFastifyError(error)) {
                     throw error

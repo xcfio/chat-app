@@ -1,4 +1,4 @@
-import { ErrorResponse, JWTPayload, ReplyUserSchema } from "../../type"
+import { ErrorResponse, JWTPayload, User } from "../../type"
 import { CreateError, isFastifyError } from "../../function"
 import { db, table } from "../../database"
 import { main } from "../../"
@@ -12,7 +12,7 @@ export default function SessionMe(fastify: Awaited<ReturnType<typeof main>>) {
             description: "Get current authenticated user",
             tags: ["Sessions"],
             response: {
-                200: ReplyUserSchema,
+                200: User,
                 401: ErrorResponse(401, "Unauthorized - authentication required"),
                 404: ErrorResponse(404, "User not found error"),
                 500: ErrorResponse(500, "Internal server error")

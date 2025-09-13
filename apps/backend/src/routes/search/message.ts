@@ -3,40 +3,34 @@ import { ErrorResponse, Message } from "../../type"
 import { Type } from "@sinclair/typebox"
 import { main } from "../../"
 
-export default function GetMessages(fastify: Awaited<ReturnType<typeof main>>) {
+export function SearchMessages(fastify: Awaited<ReturnType<typeof main>>) {
     fastify.route({
         method: "GET",
-        url: "/conversations/:id/messages",
+        url: "/search/messages",
         schema: {
-            description: "Get messages in a conversation",
-            tags: ["Messages"],
-            params: Type.Object({
-                id: Type.String({ format: "uuid", description: "Id of the conversation" })
-            }),
+            description: "Search messages across conversations",
+            tags: ["Search"],
             querystring: Type.Object({
+                query: Type.String({ minLength: 1, description: "Search query" }),
                 page: Type.Optional(Type.Number({ minimum: 1, default: 1, description: "Page number" })),
                 limit: Type.Optional(
-                    Type.Number({ minimum: 1, maximum: 100, default: 50, description: "Messages per page" })
+                    Type.Number({ minimum: 1, maximum: 100, default: 20, description: "Results per page" })
                 ),
-                before: Type.Optional(
-                    Type.String({ format: "date-time", description: "Get messages before this timestamp" })
+                conversationId: Type.Optional(
+                    Type.String({ format: "uuid", description: "Search within specific conversation" })
                 )
             }),
             response: {
-                200: Type.Array(Message, {
-                    description: "Array of message objects from the conversation, ordered by creation time",
-                    maxItems: 100,
-                    minItems: 1
-                }),
+                200: Message,
+                400: ErrorResponse(400, "Bad request - search query is required"),
                 401: ErrorResponse(401, "Unauthorized - authentication required"),
-                404: ErrorResponse(404, "Conversation not found error"),
                 500: ErrorResponse(500, "Internal server error")
             }
         },
         preHandler: fastify.authenticate,
         handler: async (request, reply) => {
             try {
-                // TODO: Implement this logic
+                // TODO: Implement search messages logic
             } catch (error) {
                 if (isFastifyError(error)) {
                     throw error

@@ -67,7 +67,7 @@ export default function socket(socket: AuthenticatedSocket) {
                 sender: socket.user.id,
                 receiver: receiverId,
                 status: "sent",
-                createdAt: now,
+                createdAt: now.toISOString(),
                 editedAt: null
             }
 
