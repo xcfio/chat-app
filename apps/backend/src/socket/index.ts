@@ -67,7 +67,8 @@ export default function socket(socket: AuthenticatedSocket) {
                 sender: socket.user.id,
                 receiver: receiverId,
                 status: "sent",
-                createdAt: now
+                createdAt: now,
+                editedAt: null
             }
 
             socket.to(`user:${receiverId}`).emit("new_message", message)

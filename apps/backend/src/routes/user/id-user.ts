@@ -1,8 +1,8 @@
 import { CreateError, isFastifyError } from "../../function"
 import { ErrorResponse, ReplyUserSchema } from "../../type"
-import { and, or, ilike, desc, eq } from "drizzle-orm"
 import { db, table } from "../../database"
 import { Type } from "@sinclair/typebox"
+import { eq } from "drizzle-orm"
 import { main } from "../../"
 
 export default function GetUserWithID(fastify: Awaited<ReturnType<typeof main>>) {

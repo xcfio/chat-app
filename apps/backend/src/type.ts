@@ -47,10 +47,34 @@ export function ErrorResponse(code: number, description?: string) {
         }
     )
 }
+
 export const UserStatusSchema = Type.Union([Type.Literal("online"), Type.Literal("offline")])
-export const MessageStatusSchema = Type.Union([Type.Literal("sent"), Type.Literal("delivered"), Type.Literal("read")])
 export const OAuthProviderSchema = Type.Union([Type.Literal("github"), Type.Literal("google")])
-const DateSchema = Type.Unsafe<Date>({ type: "object", instanceOf: "Date" })
+const DateSchema = Type.Unsafe<Date>({
+    type: "object",
+    instanceOf: "Date",
+    description: "JavaScript Date object for timestamp values"
+})
+
+export const MessageStatusSchema = Type.Union(
+    [
+        Type.Literal("sent", {
+            description: "Message has been sent but not yet delivered to recipient"
+        }),
+        Type.Literal("delivered", {
+            description: "Message has been successfully delivered to the recipient's device"
+        }),
+        Type.Literal("read", {
+            description: "Message has been opened and read by the recipient"
+        }),
+        Type.Literal("deleted", {
+            description: "Message has been deleted by sender or recipient"
+        })
+    ],
+    {
+        description: "Message delivery and read status tracking the lifecycle of a message from sending to final state"
+    }
+)
 
 export const JWTPayloadSchema = Type.Object({
     id: Type.String({ format: "uuid" }),
@@ -74,6 +98,16 @@ export const UserSchema = Type.Object({
     avatar: Type.Union([Type.String(), Type.Null()]),
     lastSeen: DateSchema,
     createdAt: DateSchema
+})
+
+export const MessageSchema = Type.Object({
+    id: Type.String({ format: "uuid" }),
+    content: Type.String({ maxLength: 2000 }),
+    status: MessageStatusSchema,
+    createdAt: DateSchema,
+    editedAt: Type.Union([DateSchema, Type.Null()]),
+    sender: Type.String(),
+    receiver: Type.String()
 })
 
 export const ReplyUserSchema = Type.Object(
@@ -106,6 +140,7 @@ export const ReplyUserSchema = Type.Object(
         avatar: Type.Union(
             [
                 Type.String({
+                    format: "uri",
                     description: "URL to the user's avatar image if it exists"
                 }),
                 Type.Null({
@@ -126,14 +161,44 @@ export const ReplyUserSchema = Type.Object(
     }
 )
 
-export const MessageSchema = Type.Object({
-    id: Type.String({ format: "uuid" }),
-    content: Type.String(),
-    status: MessageStatusSchema,
-    createdAt: DateSchema,
-    sender: Type.String(),
-    receiver: Type.String()
-})
+export const ReplyMessageSchema = Type.Object(
+    {
+        id: Type.String({
+            examples: [v7()],
+            format: "uuid",
+            description: "Unique identifier for the message using UUID v7 format"
+        }),
+        content: Type.String({
+            maxLength: 2000,
+            description: "The text content of the message, limited to 2000 characters"
+        }),
+        sender: Type.String({
+            examples: [v7()],
+            description: "UUID of the user who sent the message"
+        }),
+        receiver: Type.String({
+            examples: [v7()],
+            description: "UUID of the user who will receive the message"
+        }),
+        status: MessageStatusSchema,
+        createdAt: Type.String({
+            format: "date-time",
+            description: "ISO timestamp when the message was first created"
+        }),
+        editedAt: Type.Union([
+            Type.String({
+                format: "date-time",
+                description: "ISO timestamp of when the message was last edited"
+            }),
+            Type.Null({
+                description: "Indicates the message has never been edited"
+            })
+        ])
+    },
+    {
+        description: "Schema for a message entity representing communication between users"
+    }
+)
 
 export const ConversationSchema = Type.Object({
     id: Type.String({ format: "uuid" }),

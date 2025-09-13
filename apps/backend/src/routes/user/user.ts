@@ -17,6 +17,7 @@ export default function GetUserWithoutID(fastify: Awaited<ReturnType<typeof main
                     page: Type.Optional(
                         Type.Integer({
                             description: "Page number for pagination",
+                            default: 1,
                             minimum: 1
                         })
                     ),
