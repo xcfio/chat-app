@@ -18,7 +18,7 @@ export default function SessionRefresh(fastify: Awaited<ReturnType<typeof main>>
                 200: User,
                 400: ErrorResponse(400, "Bad request - invalid data or missing token"),
                 401: ErrorResponse(401, "Unauthorized - token expired or invalid"),
-                404: ErrorResponse(404, "User not found"),
+                404: ErrorResponse(404, "Not found - User not found"),
                 429: ErrorResponse(429, "Too many requests - rate limit exceeded"),
                 500: ErrorResponse(500, "Internal server error")
             }
