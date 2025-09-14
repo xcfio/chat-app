@@ -15,6 +15,7 @@ export default function SessionMe(fastify: Awaited<ReturnType<typeof main>>) {
                 200: User,
                 401: ErrorResponse(401, "Unauthorized - authentication required"),
                 404: ErrorResponse(404, "User not found error"),
+                429: ErrorResponse(429, "Too many requests - rate limit exceeded"),
                 500: ErrorResponse(500, "Internal server error")
             }
         },

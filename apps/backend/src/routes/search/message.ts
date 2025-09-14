@@ -24,6 +24,7 @@ export function SearchMessages(fastify: Awaited<ReturnType<typeof main>>) {
                 200: Message,
                 400: ErrorResponse(400, "Bad request - search query is required"),
                 401: ErrorResponse(401, "Unauthorized - authentication required"),
+                429: ErrorResponse(429, "Too many requests - rate limit exceeded"),
                 500: ErrorResponse(500, "Internal server error")
             }
         },

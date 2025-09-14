@@ -30,6 +30,7 @@ export default function GetMessages(fastify: Awaited<ReturnType<typeof main>>) {
                 }),
                 401: ErrorResponse(401, "Unauthorized - authentication required"),
                 404: ErrorResponse(404, "Conversation not found error"),
+                429: ErrorResponse(429, "Too many requests - rate limit exceeded"),
                 500: ErrorResponse(500, "Internal server error")
             }
         },

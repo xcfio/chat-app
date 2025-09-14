@@ -18,6 +18,7 @@ export function CreateConversation(fastify: Awaited<ReturnType<typeof main>>) {
                 400: ErrorResponse(400, "Bad request - invalid user id or conversation already exists"),
                 401: ErrorResponse(401, "Unauthorized - authentication required"),
                 404: ErrorResponse(404, "User not found error"),
+                429: ErrorResponse(429, "Too many requests - rate limit exceeded"),
                 500: ErrorResponse(500, "Internal server error")
             }
         },
