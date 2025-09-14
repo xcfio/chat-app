@@ -1,6 +1,8 @@
 import { CreateError, isFastifyError } from "../../function"
-import { ErrorResponse } from "../../type"
+import { ErrorResponse, JWTPayload } from "../../type"
+import { db, table } from "../../database"
 import { Type } from "@sinclair/typebox"
+import { eq } from "drizzle-orm"
 import { main } from "../../"
 
 export function DeleteConversation(fastify: Awaited<ReturnType<typeof main>>) {
@@ -33,12 +35,37 @@ export function DeleteConversation(fastify: Awaited<ReturnType<typeof main>>) {
         preHandler: fastify.authenticate,
         handler: async (request, reply) => {
             try {
-                // TODO: Implement delete conversation logic
+                const { id } = request.params
+                const user = request.user as JWTPayload
+
+                const [existingConversation] = await db
+                    .select()
+                    .from(table.conversation)
+                    .where(eq(table.conversation.id, id))
+                    .limit(1)
+
+                if (!existingConversation) {
+                    throw CreateError(404, "CONVERSATION_NOT_FOUND", "Conversation not found")
+                }
+
+                if (existingConversation.p1 !== user.id && existingConversation.p2 !== user.id) {
+                    throw CreateError(403, "FORBIDDEN", "Not authorized to delete this conversation")
+                }
+
+                const deletedRows = await db.delete(table.conversation).where(eq(table.conversation.id, id)).returning()
+                if (deletedRows.length === 0) {
+                    throw CreateError(404, "CONVERSATION_NOT_FOUND", "Conversation not found")
+                }
+
+                return reply.status(200).send({
+                    success: true,
+                    message: "Conversation deleted successfully"
+                })
             } catch (error) {
                 if (isFastifyError(error)) {
                     throw error
                 } else {
-                    console.trace(error)
+                    console.error("Error deleting conversation:", error)
                     throw CreateError(500, "INTERNAL_SERVER_ERROR", "Internal Server Error")
                 }
             }

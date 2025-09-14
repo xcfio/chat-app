@@ -1,6 +1,8 @@
+import { Conversation, ErrorResponse, JWTPayload } from "../../type"
 import { CreateError, isFastifyError } from "../../function"
-import { Conversation, ErrorResponse } from "../../type"
+import { db, table } from "../../database"
 import { Type } from "@sinclair/typebox"
+import { eq } from "drizzle-orm"
 import { main } from "../../"
 
 export function GetConversationId(fastify: Awaited<ReturnType<typeof main>>) {
@@ -25,12 +27,39 @@ export function GetConversationId(fastify: Awaited<ReturnType<typeof main>>) {
         preHandler: fastify.authenticate,
         handler: async (request, reply) => {
             try {
-                // TODO: Implement get conversation details logic
+                const { id: conversationId } = request.params
+                const currentUserId = request.user as JWTPayload
+
+                if (!currentUserId) {
+                    throw CreateError(401, "UNAUTHORIZED", "User authentication required")
+                }
+
+                const [conversation] = await db
+                    .select()
+                    .from(table.conversation)
+                    .where(eq(table.conversation.id, conversationId))
+                    .limit(1)
+
+                if (!conversation) {
+                    throw CreateError(404, "CONVERSATION_NOT_FOUND", "Conversation not found")
+                }
+
+                const isParticipant = conversation.p1 === currentUserId.id || conversation.p2 === currentUserId.id
+
+                if (!isParticipant) {
+                    throw CreateError(403, "FORBIDDEN", "Not authorized to access this conversation")
+                }
+
+                return reply.status(200).send({
+                    ...conversation,
+                    createdAt: conversation.createdAt.toISOString(),
+                    updatedAt: conversation.updatedAt.toISOString()
+                })
             } catch (error) {
                 if (isFastifyError(error)) {
                     throw error
                 } else {
-                    console.trace(error)
+                    console.error("Error fetching conversation:", error)
                     throw CreateError(500, "INTERNAL_SERVER_ERROR", "Internal Server Error")
                 }
             }
