@@ -1,7 +1,9 @@
 import { CreateError, isFastifyError } from "../../function"
-import { ErrorResponse } from "../../type"
+import { ErrorResponse, JWTPayload } from "../../type"
+import { db, table } from "../../database"
 import { Type } from "@sinclair/typebox"
 import { main } from "../../"
+import { eq, and } from "drizzle-orm"
 
 export default function ReadMessage(fastify: Awaited<ReturnType<typeof main>>) {
     fastify.route({
@@ -32,7 +34,42 @@ export default function ReadMessage(fastify: Awaited<ReturnType<typeof main>>) {
         preHandler: fastify.authenticate,
         handler: async (request, reply) => {
             try {
-                // TODO: Implement this logic
+                const { id } = request.params
+                const { id: userId } = request.user as JWTPayload
+
+                const existingMessage = await db.select().from(table.message).where(eq(table.message.id, id)).limit(1)
+                if (existingMessage.length === 0) {
+                    throw CreateError(404, "MESSAGE_NOT_FOUND", "Message not found")
+                }
+
+                const message = existingMessage[0]
+                if (message.receiver !== userId) {
+                    throw CreateError(404, "MESSAGE_NOT_FOUND", "Message not found")
+                }
+
+                if (message.status === "read") {
+                    return reply.code(200).send({
+                        success: true,
+                        message: "Message is already marked as read"
+                    })
+                }
+
+                if (message.status === "deleted") {
+                    throw CreateError(404, "MESSAGE_NOT_FOUND", "Message not found")
+                }
+
+                await db
+                    .update(table.message)
+                    .set({
+                        status: "read",
+                        editedAt: new Date()
+                    })
+                    .where(and(eq(table.message.id, id), eq(table.message.receiver, userId)))
+
+                return reply.code(200).send({
+                    success: true,
+                    message: "Message marked as read successfully"
+                })
             } catch (error) {
                 if (isFastifyError(error)) {
                     throw error

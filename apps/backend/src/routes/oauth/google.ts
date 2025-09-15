@@ -139,17 +139,14 @@ export default function AuthGoogle(fastify: Awaited<ReturnType<typeof main>>) {
                     throw CreateError(400, "NO_AUTH_CODE", "Authorization code not provided")
                 }
 
-                // CSRF Protection
                 const storedState = request.unsignCookie(request.cookies.google_oauth_state || "")
                 if (!storedState.valid || !state || storedState.value !== state) {
                     reply.clearCookie("google_oauth_state", { path: "/" })
                     throw CreateError(400, "INVALID_STATE", "Invalid or missing state parameter")
                 }
 
-                // Clear the state cookie
                 reply.clearCookie("google_oauth_state", { path: "/" })
 
-                // Exchange code for tokens
                 const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
                     method: "POST",
                     headers: {
@@ -179,7 +176,6 @@ export default function AuthGoogle(fastify: Awaited<ReturnType<typeof main>>) {
                     id_token: string
                 }
 
-                // Get user info from Google
                 const userResponse = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
                     headers: {
                         Authorization: `Bearer ${tokenData.access_token}`

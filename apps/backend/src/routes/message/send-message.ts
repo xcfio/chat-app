@@ -1,5 +1,7 @@
-import { ErrorResponse, Message } from "../../type"
+import { ErrorResponse, JWTPayload, Message } from "../../type"
 import { CreateError, isFastifyError } from "../../function"
+import { db, table } from "../../database"
+import { eq, and, or } from "drizzle-orm"
 import { Type } from "@sinclair/typebox"
 import { main } from "../../"
 
@@ -20,6 +22,7 @@ export default function SendMessage(fastify: Awaited<ReturnType<typeof main>>) {
                 201: Message,
                 400: ErrorResponse(400, "Bad request - invalid message content"),
                 401: ErrorResponse(401, "Unauthorized - authentication required"),
+                404: ErrorResponse(404, "Not found - conversation not found"),
                 429: ErrorResponse(429, "Too many requests - rate limit exceeded"),
                 500: ErrorResponse(500, "Internal server error")
             }
@@ -27,7 +30,71 @@ export default function SendMessage(fastify: Awaited<ReturnType<typeof main>>) {
         preHandler: fastify.authenticate,
         handler: async (request, reply) => {
             try {
-                // TODO: Implement this logic
+                const { id: userId } = request.user as JWTPayload
+                const { id: conversationId } = request.params
+                const { content } = request.body
+
+                const trimmedContent = content.trim()
+                if (!trimmedContent) {
+                    throw CreateError(400, "INVALID_CONTENT", "Message content cannot be empty")
+                }
+
+                const conversation = await db
+                    .select()
+                    .from(table.conversation)
+                    .where(
+                        and(
+                            eq(table.conversation.id, conversationId),
+                            or(eq(table.conversation.p1, userId), eq(table.conversation.p2, userId))
+                        )
+                    )
+                    .limit(1)
+
+                if (conversation.length === 0) {
+                    throw CreateError(404, "CONVERSATION_NOT_FOUND", "Conversation not found")
+                }
+
+                const conv = conversation[0]
+                const receiverId = conv.p1 === userId ? conv.p2 : conv.p1
+
+                const newMessage = await db
+                    .insert(table.message)
+                    .values({
+                        content: trimmedContent,
+                        sender: userId,
+                        receiver: receiverId,
+                        status: "sent"
+                    })
+                    .returning()
+
+                const createdMessage = newMessage[0]
+
+                await db
+                    .update(table.conversation)
+                    .set({ updatedAt: new Date() })
+                    .where(eq(table.conversation.id, conversationId))
+
+                if (fastify.io) {
+                    fastify.io.to(receiverId).emit("new_message", {
+                        id: createdMessage.id,
+                        content: createdMessage.content,
+                        sender: createdMessage.sender,
+                        receiver: createdMessage.receiver,
+                        status: createdMessage.status,
+                        createdAt: createdMessage.createdAt?.toISOString() || new Date().toISOString(),
+                        editedAt: createdMessage.editedAt?.toISOString() || null
+                    })
+                }
+
+                return reply.code(201).send({
+                    id: createdMessage.id,
+                    content: createdMessage.content,
+                    sender: createdMessage.sender,
+                    receiver: createdMessage.receiver,
+                    status: createdMessage.status,
+                    createdAt: createdMessage.createdAt?.toISOString() || new Date().toISOString(),
+                    editedAt: createdMessage.editedAt?.toISOString() || null
+                })
             } catch (error) {
                 if (isFastifyError(error)) {
                     throw error

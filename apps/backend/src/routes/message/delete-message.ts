@@ -1,7 +1,9 @@
 import { CreateError, isFastifyError } from "../../function"
-import { ErrorResponse } from "../../type"
+import { ErrorResponse, JWTPayload } from "../../type"
+import { db, table } from "../../database"
 import { Type } from "@sinclair/typebox"
 import { main } from "../../"
+import { eq, and } from "drizzle-orm"
 
 export default function DeleteMessage(fastify: Awaited<ReturnType<typeof main>>) {
     fastify.route({
@@ -30,7 +32,56 @@ export default function DeleteMessage(fastify: Awaited<ReturnType<typeof main>>)
         preHandler: fastify.authenticate,
         handler: async (request, reply) => {
             try {
-                // TODO: Implement this logic
+                const { id } = request.params
+                const { id: userId } = request.user as JWTPayload
+
+                const existingMessage = await db
+                    .select({
+                        id: table.message.id,
+                        sender: table.message.sender,
+                        receiver: table.message.receiver,
+                        status: table.message.status
+                    })
+                    .from(table.message)
+                    .where(eq(table.message.id, id))
+                    .limit(1)
+
+                if (existingMessage.length === 0) {
+                    throw CreateError(404, "MESSAGE_NOT_FOUND", "Message not found")
+                }
+
+                const message = existingMessage[0]
+
+                if (message.sender !== userId) {
+                    throw CreateError(404, "MESSAGE_NOT_FOUND", "Message not found")
+                }
+
+                if (message.status === "deleted") {
+                    return reply.code(200).send({
+                        success: true,
+                        message: "Message is already deleted"
+                    })
+                }
+
+                await db
+                    .update(table.message)
+                    .set({
+                        status: "deleted",
+                        editedAt: new Date()
+                    })
+                    .where(and(eq(table.message.id, id), eq(table.message.sender, userId)))
+
+                if (fastify.io) {
+                    fastify.io.to(message.receiver).emit("message_deleted", {
+                        messageId: id,
+                        conversationId: message.receiver
+                    })
+                }
+
+                return reply.code(200).send({
+                    success: true,
+                    message: "Message deleted successfully"
+                })
             } catch (error) {
                 if (isFastifyError(error)) {
                     throw error

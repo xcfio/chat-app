@@ -2,13 +2,9 @@ import { FastifyInstance } from "fastify"
 import { AuthenticatedSocket } from "."
 import { JWTPayload } from "../type"
 
-// JWT payload interface
-// Authentication middleware function
-
 export function createAuthMiddleware(fastify: FastifyInstance) {
     return async (socket: AuthenticatedSocket, next: (err?: Error) => void) => {
         try {
-            // Get cookies from handshake headers
             const cookieHeader = socket.handshake.headers.cookie
 
             if (!cookieHeader) {
@@ -23,10 +19,8 @@ export function createAuthMiddleware(fastify: FastifyInstance) {
                 return next(new Error("No auth cookie found"))
             }
 
-            // Verify JWT using Fastify's JWT plugin
             const decoded = fastify.jwt.verify(authCookie) as JWTPayload
 
-            // Attach user data to socket
             socket.userId = decoded.id
             socket.user = decoded
 
