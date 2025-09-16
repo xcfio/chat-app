@@ -49,7 +49,7 @@ export function SearchMessages(fastify: Awaited<ReturnType<typeof main>>) {
                 const searchPattern = `%${searchQuery}%`
                 const whereConditions = [
                     ilike(table.message.content, searchPattern),
-                    or(eq(table.message.sender, id), eq(table.message.receiver, id))
+                    or(eq(table.conversation.p1, id), eq(table.conversation.p2, id))
                 ]
 
                 if (conversationId) {
@@ -72,13 +72,14 @@ export function SearchMessages(fastify: Awaited<ReturnType<typeof main>>) {
                 const messages = await db
                     .select()
                     .from(table.message)
+                    .leftJoin(table.conversation, eq(table.conversation.id, table.message.conversation))
                     .where(and(...whereConditions))
                     .orderBy(desc(table.message.createdAt))
                     .limit(limit)
 
                 if (!messages.length) throw CreateError(404, "MESSAGE_NOT_FOUND", "Message not found")
                 return reply.status(200).send(
-                    messages.map((message) => ({
+                    messages.map(({ message }) => ({
                         ...message,
                         createdAt: message.createdAt.toISOString(),
                         editedAt: message.editedAt?.toISOString() ?? null

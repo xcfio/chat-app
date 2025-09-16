@@ -1,9 +1,9 @@
 import { CreateError, isFastifyError } from "../../function"
-import { ErrorResponse, JWTPayload } from "../../type"
+import { ErrorResponse } from "../../type"
 import { db, table } from "../../database"
 import { Type } from "@sinclair/typebox"
+import { eq } from "drizzle-orm"
 import { main } from "../../"
-import { eq, and } from "drizzle-orm"
 
 export default function ReadMessage(fastify: Awaited<ReturnType<typeof main>>) {
     fastify.route({
@@ -35,15 +35,15 @@ export default function ReadMessage(fastify: Awaited<ReturnType<typeof main>>) {
         handler: async (request, reply) => {
             try {
                 const { id } = request.params
-                const { id: userId } = request.user as JWTPayload
 
-                const existingMessage = await db.select().from(table.message).where(eq(table.message.id, id)).limit(1)
-                if (existingMessage.length === 0) {
-                    throw CreateError(404, "MESSAGE_NOT_FOUND", "Message not found")
-                }
+                const [{ message, conversation }] = await db
+                    .select()
+                    .from(table.message)
+                    .leftJoin(table.conversation, eq(table.conversation.id, table.message.conversation))
+                    .where(eq(table.message.id, id))
+                    .limit(1)
 
-                const message = existingMessage[0]
-                if (message.receiver !== userId) {
+                if (!message || !conversation) {
                     throw CreateError(404, "MESSAGE_NOT_FOUND", "Message not found")
                 }
 
@@ -60,11 +60,8 @@ export default function ReadMessage(fastify: Awaited<ReturnType<typeof main>>) {
 
                 await db
                     .update(table.message)
-                    .set({
-                        status: "read",
-                        editedAt: new Date()
-                    })
-                    .where(and(eq(table.message.id, id), eq(table.message.receiver, userId)))
+                    .set({ status: "read", editedAt: new Date() })
+                    .where(eq(table.message.id, id))
 
                 return reply.code(200).send({
                     success: true,

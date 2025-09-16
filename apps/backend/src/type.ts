@@ -154,9 +154,9 @@ export const Message = Type.Object(
             examples: [v7()],
             description: "UUID of the user who sent the message"
         }),
-        receiver: Type.String({
+        conversation: Type.String({
             examples: [v7()],
-            description: "UUID of the user who will receive the message"
+            description: "UUID of the conversation"
         }),
         status: MessageStatus,
         createdAt: Type.String({
@@ -202,28 +202,16 @@ export const Conversation = Type.Object({
     })
 })
 
-export type ServerToClientEvents = Static<typeof ServerToClientEvents>
-export const ServerToClientEvents = Type.Object({
-    new_message: Type.Function([Message], Type.Void()),
-    message_read: Type.Function([Type.String()], Type.Void()),
-    user_status_changed: Type.Function([Type.String(), UserStatus], Type.Void()),
-    user_typing: Type.Function([Type.String(), Type.Boolean()], Type.Void()),
-    error: Type.Function(
-        [
-            Type.Object({
-                message: Type.String(),
-                code: Type.String()
-            })
-        ],
-        Type.Void()
-    )
-})
+export type ServerToClientEvents = {
+    new_message: (message: Message) => void
+    message_deleted: (data: { messageId: string; conversationId: string }) => void
+    message_edited: (data: { messageId: string; content: string; editedAt: string; conversationId: string }) => void
+    user_status_changed: (userId: string, status: UserStatus) => void
+    user_typing: (userId: string, isTyping: boolean) => void
+    error: (error: { message: string; code: string }) => void
+}
 
-export type ClientToServerEvents = Static<typeof ClientToServerEvents>
-export const ClientToServerEvents = Type.Object({
-    send_message: Type.Function([Type.String(), Type.String()], Type.Void()),
-    mark_message_read: Type.Function([Type.String()], Type.Void()),
-    update_status: Type.Function([UserStatus], Type.Void()),
-    start_typing: Type.Function([Type.String()], Type.Void()),
-    stop_typing: Type.Function([Type.String()], Type.Void())
-})
+export type ClientToServerEvents = {
+    update_status: (status: UserStatus) => void
+    typing: (chatId: string, isTyping: boolean) => void
+}

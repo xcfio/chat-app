@@ -41,36 +41,19 @@ export default function GetMessages(fastify: Awaited<ReturnType<typeof main>>) {
             try {
                 const { id: conversationId } = request.params
                 const { page = 1, limit = 50, before } = request.query
-                const { id: userId } = request.user as JWTPayload
 
-                const conversation = await db
-                    .select({
-                        id: table.conversation.id,
-                        p1: table.conversation.p1,
-                        p2: table.conversation.p2
-                    })
+                const [conversation] = await db
+                    .select()
                     .from(table.conversation)
-                    .where(
-                        and(
-                            eq(table.conversation.id, conversationId),
-                            or(eq(table.conversation.p1, userId), eq(table.conversation.p2, userId))
-                        )
-                    )
+                    .where(eq(table.conversation.id, conversationId))
                     .limit(1)
 
-                if (conversation.length === 0) {
+                if (!conversation) {
                     throw CreateError(404, "CONVERSATION_NOT_FOUND", "Conversation not found")
                 }
 
-                const conv = conversation[0]
-                const otherParticipant = conv.p1 === userId ? conv.p2 : conv.p1
-
                 const whereConditions = [
-                    or(
-                        and(eq(table.message.sender, userId), eq(table.message.receiver, otherParticipant)),
-                        and(eq(table.message.sender, otherParticipant), eq(table.message.receiver, userId))
-                    ),
-
+                    eq(table.message.conversation, conversation.id),
                     ne(table.message.status, "deleted")
                 ]
 
@@ -85,15 +68,7 @@ export default function GetMessages(fastify: Awaited<ReturnType<typeof main>>) {
                 const offset = (page - 1) * limit
 
                 const messages = await db
-                    .select({
-                        id: table.message.id,
-                        content: table.message.content,
-                        sender: table.message.sender,
-                        receiver: table.message.receiver,
-                        status: table.message.status,
-                        createdAt: table.message.createdAt,
-                        editedAt: table.message.editedAt
-                    })
+                    .select()
                     .from(table.message)
                     .where(and(...whereConditions))
                     .orderBy(desc(table.message.createdAt))
@@ -101,11 +76,7 @@ export default function GetMessages(fastify: Awaited<ReturnType<typeof main>>) {
                     .offset(offset)
 
                 const formattedMessages = messages.map((message) => ({
-                    id: message.id,
-                    content: message.content,
-                    sender: message.sender,
-                    receiver: message.receiver,
-                    status: message.status,
+                    ...message,
                     createdAt: message.createdAt?.toISOString() || new Date().toISOString(),
                     editedAt: message.editedAt?.toISOString() || null
                 }))

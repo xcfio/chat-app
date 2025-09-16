@@ -39,7 +39,7 @@ export default function SendMessage(fastify: Awaited<ReturnType<typeof main>>) {
                     throw CreateError(400, "INVALID_CONTENT", "Message content cannot be empty")
                 }
 
-                const conversation = await db
+                const [conversation] = await db
                     .select()
                     .from(table.conversation)
                     .where(
@@ -50,24 +50,14 @@ export default function SendMessage(fastify: Awaited<ReturnType<typeof main>>) {
                     )
                     .limit(1)
 
-                if (conversation.length === 0) {
+                if (!conversation) {
                     throw CreateError(404, "CONVERSATION_NOT_FOUND", "Conversation not found")
                 }
 
-                const conv = conversation[0]
-                const receiverId = conv.p1 === userId ? conv.p2 : conv.p1
-
-                const newMessage = await db
+                const [message] = await db
                     .insert(table.message)
-                    .values({
-                        content: trimmedContent,
-                        sender: userId,
-                        receiver: receiverId,
-                        status: "sent"
-                    })
+                    .values({ content: trimmedContent, sender: userId, conversation: conversation.id, status: "sent" })
                     .returning()
-
-                const createdMessage = newMessage[0]
 
                 await db
                     .update(table.conversation)
@@ -75,25 +65,26 @@ export default function SendMessage(fastify: Awaited<ReturnType<typeof main>>) {
                     .where(eq(table.conversation.id, conversationId))
 
                 if (fastify.io) {
-                    fastify.io.to(receiverId).emit("new_message", {
-                        id: createdMessage.id,
-                        content: createdMessage.content,
-                        sender: createdMessage.sender,
-                        receiver: createdMessage.receiver,
-                        status: createdMessage.status,
-                        createdAt: createdMessage.createdAt?.toISOString() || new Date().toISOString(),
-                        editedAt: createdMessage.editedAt?.toISOString() || null
+                    const receiver = conversation.p1 === userId ? conversation.p2 : conversation.p1
+                    fastify.io.to(receiver).emit("new_message", {
+                        id: message.id,
+                        content: message.content,
+                        sender: message.sender,
+                        conversation: message.conversation,
+                        status: message.status,
+                        createdAt: message.createdAt?.toISOString() ?? new Date().toISOString(),
+                        editedAt: message.editedAt?.toISOString() ?? null
                     })
                 }
 
                 return reply.code(201).send({
-                    id: createdMessage.id,
-                    content: createdMessage.content,
-                    sender: createdMessage.sender,
-                    receiver: createdMessage.receiver,
-                    status: createdMessage.status,
-                    createdAt: createdMessage.createdAt?.toISOString() || new Date().toISOString(),
-                    editedAt: createdMessage.editedAt?.toISOString() || null
+                    id: message.id,
+                    content: message.content,
+                    sender: message.sender,
+                    conversation: message.conversation,
+                    status: message.status,
+                    createdAt: message.createdAt?.toISOString() ?? new Date().toISOString(),
+                    editedAt: message.editedAt?.toISOString() ?? null
                 })
             } catch (error) {
                 if (isFastifyError(error)) {
