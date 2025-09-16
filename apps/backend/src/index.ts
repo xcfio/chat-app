@@ -86,7 +86,7 @@ export async function main() {
     await fastify.listen({ host: `localhost`, port: 7200 })
     console.log(`Server listening at http://localhost:7200`)
 
-    fastify.io.on("connection", Socket)
+    fastify.io.on("connection", Socket(fastify))
     return fastify
 }
 
