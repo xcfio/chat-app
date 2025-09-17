@@ -9,14 +9,25 @@
         "test": "tsc --noEmit"
     },
     "dependencies": {
-        "react": "19.1.1",
-        "react-dom": "19.1.1",
-        "next": "15.5.3"
+        "@emotion/react": "^11.14.0",
+        "@mantine/core": "^8.3.1",
+        "@mantine/hooks": "^8.3.1",
+        "@mantine/notifications": "^8.3.1",
+        "@tabler/icons-react": "^3.35.0",
+        "@tailwindcss/postcss": "^4.1.13",
+        "axios": "^1.12.2",
+        "next": "^15.5.3",
+        "react": "^19.1.1",
+        "react-dom": "^19.1.1",
+        "socket.io-client": "^4.8.1"
     },
     "devDependencies": {
-        "typescript": "^5",
         "@types/node": "^24",
-        "@types/react": "^19",
-        "@types/react-dom": "^19"
+        "@types/react": "^19.1.13",
+        "@types/react-dom": "^19.1.9",
+        "autoprefixer": "^10.4.21",
+        "postcss": "^8.5.6",
+        "tailwindcss": "^4.1.13",
+        "typescript": "^5.9.2"
     }
 }
