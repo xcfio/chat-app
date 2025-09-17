@@ -7,6 +7,8 @@ import { Container, Center, Loader, Text, Alert } from "@mantine/core"
 import { IconX } from "@tabler/icons-react"
 import { useAuth } from "@/components/providers/AuthProvider"
 
+export const dynamic = "force-dynamic"
+
 export default function AuthPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
