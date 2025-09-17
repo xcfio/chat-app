@@ -212,7 +212,7 @@ export default function AuthGitHub(fastify: Awaited<ReturnType<typeof main>>) {
                     avatar: user.avatar_url || `https://github.com/identicons/${user.login}.png`
                 } as const
 
-                const data = await db
+                const [data] = await db
                     .insert(table.user)
                     .values(values)
                     .onConflictDoUpdate({
@@ -227,7 +227,7 @@ export default function AuthGitHub(fastify: Awaited<ReturnType<typeof main>>) {
                     .returning()
 
                 const payload: JWTPayload = {
-                    ...data[0],
+                    ...({ ...data, createdAt: undefined, updatedAt: undefined, lastSeen: undefined } as any),
                     token: tokenData.access_token,
                     iat: Math.floor(Date.now() / 1000),
                     exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60

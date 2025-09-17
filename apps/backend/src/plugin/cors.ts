@@ -3,7 +3,8 @@ import { main } from "../"
 
 export default async function cors(fastify: Awaited<ReturnType<typeof main>>) {
     await fastify.register(Cors, {
-        methods: ["GET", "POST", "PUT"],
+        credentials: true,
+        methods: ["GET", "POST", "PUT", "PATCH"],
         origin: (origin, cb) => cb(null, true)
     })
 }

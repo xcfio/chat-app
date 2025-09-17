@@ -208,7 +208,7 @@ export default function AuthGoogle(fastify: Awaited<ReturnType<typeof main>>) {
                         `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=4285f4&color=fff`
                 } as const
 
-                const data = await db
+                const [data] = await db
                     .insert(table.user)
                     .values(values)
                     .onConflictDoUpdate({
@@ -224,7 +224,7 @@ export default function AuthGoogle(fastify: Awaited<ReturnType<typeof main>>) {
                     .returning()
 
                 const payload: JWTPayload = {
-                    ...data[0],
+                    ...({ ...data, createdAt: undefined, updatedAt: undefined, lastSeen: undefined } as any),
                     token: tokenData.access_token,
                     iat: Math.floor(Date.now() / 1000),
                     exp: Math.floor(Date.now() / 1000) + tokenData.expires_in

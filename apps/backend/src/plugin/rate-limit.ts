@@ -4,7 +4,7 @@ import { main } from "../"
 export default async function rl(fastify: Awaited<ReturnType<typeof main>>) {
     await fastify.register(RateLimit, {
         max: 20,
-        timeWindow: 30000,
+        timeWindow: 10000,
 
         keyGenerator: (req) => {
             const forwarded = req.headers["x-forwarded-for"]

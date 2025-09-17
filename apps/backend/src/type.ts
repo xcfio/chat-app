@@ -75,11 +75,11 @@ export const MessageStatus = Type.Union(
 
 export type JWTPayload = Static<typeof JWTPayload>
 export const JWTPayload = Type.Object({
-    id: Type.String({ format: "uuid" }),
-    email: Type.String({ format: "email" }),
+    id: Type.String({ pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" }),
+    email: Type.String({ pattern: "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$" }),
     username: Type.String(),
     name: Type.Union([Type.String(), Type.Null()]),
-    avatar: Type.Union([Type.String(), Type.Null()]),
+    avatar: Type.Union([Type.String({ pattern: "^https?://.+" }), Type.Null()]),
     type: OAuthProvider,
     token: Type.String(),
     iat: Type.Number(),
@@ -91,11 +91,12 @@ export const User = Type.Object(
     {
         id: Type.String({
             examples: [v7()],
-            format: "uuid",
+            pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
             description: "Unique identifier for the user"
         }),
         email: Type.String({
-            format: "email",
+            examples: ["me@example.com"],
+            pattern: "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
             description: "User's email address"
         }),
         username: Type.String({
@@ -117,7 +118,8 @@ export const User = Type.Object(
         avatar: Type.Union(
             [
                 Type.String({
-                    format: "uri",
+                    examples: ["https://avatars.githubusercontent.com/u/119097812"],
+                    pattern: "^https?://.+",
                     description: "URL to the user's avatar image if it exists"
                 }),
                 Type.Null({
@@ -143,7 +145,7 @@ export const Message = Type.Object(
     {
         id: Type.String({
             examples: [v7()],
-            format: "uuid",
+            pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
             description: "Unique identifier for the message using UUID v7 format"
         }),
         content: Type.String({
@@ -152,10 +154,12 @@ export const Message = Type.Object(
         }),
         sender: Type.String({
             examples: [v7()],
+            pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
             description: "UUID of the user who sent the message"
         }),
         conversation: Type.String({
             examples: [v7()],
+            pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
             description: "UUID of the conversation"
         }),
         status: MessageStatus,
@@ -181,15 +185,18 @@ export const Message = Type.Object(
 export type Conversation = Static<typeof Conversation>
 export const Conversation = Type.Object({
     id: Type.String({
-        format: "uuid",
+        examples: [v7()],
+        pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
         description: "Unique identifier for the conversation"
     }),
     p1: Type.String({
-        format: "uuid",
+        examples: [v7()],
+        pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
         description: "User ID of the first participant in the conversation"
     }),
     p2: Type.String({
-        format: "uuid",
+        examples: [v7()],
+        pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
         description: "User ID of the second participant in the conversation"
     }),
     createdAt: Type.String({
