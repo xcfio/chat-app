@@ -148,11 +148,11 @@ export function MessageList({ conversationId, otherUser, onEditMessage }: Messag
     const getMessageStatus = (message: Message) => {
         switch (message.status) {
             case "sent":
-                return <IconCheck size={14} color="gray" />
+                return <IconCheck size={14} color="rgba(255,255,255,0.8)" />
             case "delivered":
-                return <IconChecks size={14} color="gray" />
+                return <IconChecks size={14} color="rgba(255,255,255,0.8)" />
             case "read":
-                return <IconChecks size={14} color="blue" />
+                return <IconChecks size={14} color="#22c55e" />
             default:
                 return null
         }
@@ -160,16 +160,16 @@ export function MessageList({ conversationId, otherUser, onEditMessage }: Messag
 
     if (loading) {
         return (
-            <Paper h="100%" p="md" className="flex items-center justify-center">
-                <Loader />
+            <Paper h="100%" p="md" className="flex items-center justify-center bg-gray-900">
+                <Loader color="blue" />
             </Paper>
         )
     }
 
     return (
-        <Paper h="100%">
+        <Paper h="100%" style={{ backgroundColor: "#f8fafc" }}>
             <ScrollArea h="calc(100vh - 200px)" p="md" ref={scrollAreaRef}>
-                <Stack gap="md">
+                <Stack gap="sm">
                     {messageList.map((message) => {
                         const isOwn = message.sender === currentUser?.id
                         const showAvatar = !isOwn
@@ -193,19 +193,32 @@ export function MessageList({ conversationId, otherUser, onEditMessage }: Messag
                                 <Paper
                                     p="sm"
                                     maw="70%"
-                                    className={`${
-                                        isOwn ? "bg-blue-500 text-white" : "bg-gray-100 border border-gray-200"
-                                    }`}
                                     style={{
-                                        borderRadius: isOwn ? "16px 4px 16px 16px" : "4px 16px 16px 16px"
+                                        background: isOwn
+                                            ? "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)"
+                                            : "#ffffff",
+                                        color: isOwn ? "white" : "#374151",
+                                        borderRadius: "18px",
+                                        borderBottomRightRadius: isOwn ? "4px" : "18px",
+                                        borderBottomLeftRadius: isOwn ? "18px" : "4px",
+                                        boxShadow: isOwn
+                                            ? "0 4px 12px rgba(59, 130, 246, 0.2)"
+                                            : "0 2px 8px rgba(0, 0, 0, 0.1)",
+                                        border: isOwn ? "none" : "1px solid #e5e7eb"
                                     }}
                                 >
-                                    <Text size="sm" style={{ wordBreak: "break-word" }}>
+                                    <Text size="sm" style={{ wordBreak: "break-word", lineHeight: 1.4 }}>
                                         {message.content}
                                     </Text>
 
-                                    <Group justify="space-between" align="center" mt={4} gap="xs">
-                                        <Text size="xs" c={isOwn ? "gray.2" : "dimmed"}>
+                                    <Group justify="space-between" align="center" mt={6} gap="xs">
+                                        <Text
+                                            size="xs"
+                                            style={{
+                                                color: isOwn ? "rgba(255,255,255,0.8)" : "#6b7280",
+                                                fontSize: "11px"
+                                            }}
+                                        >
                                             {formatTime(message.createdAt)}
                                             {message.editedAt && " (edited)"}
                                         </Text>
@@ -219,16 +232,23 @@ export function MessageList({ conversationId, otherUser, onEditMessage }: Messag
                                                         <ActionIcon
                                                             variant="subtle"
                                                             size="xs"
-                                                            c={isOwn ? "white" : "gray"}
+                                                            style={{ color: "rgba(255,255,255,0.8)" }}
                                                         >
                                                             <IconDots size={12} />
                                                         </ActionIcon>
                                                     </Menu.Target>
 
-                                                    <Menu.Dropdown>
+                                                    <Menu.Dropdown
+                                                        style={{
+                                                            backgroundColor: "#ffffff",
+                                                            border: "1px solid #e5e7eb",
+                                                            boxShadow: "0 10px 25px rgba(0, 0, 0, 0.15)"
+                                                        }}
+                                                    >
                                                         <Menu.Item
                                                             leftSection={<IconEdit size={14} />}
                                                             onClick={() => onEditMessage(message)}
+                                                            style={{ color: "#374151" }}
                                                         >
                                                             Edit
                                                         </Menu.Item>
@@ -252,15 +272,70 @@ export function MessageList({ conversationId, otherUser, onEditMessage }: Messag
                     {typingUsers.size > 0 && (
                         <Group align="flex-start" gap="sm">
                             <Avatar src={otherUser.avatar} alt={otherUser.name || otherUser.username} size="sm" />
-                            <Paper p="sm" bg="gray.1" style={{ borderRadius: "4px 16px 16px 16px" }}>
-                                <Text size="sm" c="dimmed">
-                                    {otherUser.name || otherUser.username} is typing...
+                            <Paper
+                                p="sm"
+                                style={{
+                                    backgroundColor: "#ffffff",
+                                    color: "#6b7280",
+                                    borderRadius: "18px",
+                                    borderBottomLeftRadius: "4px",
+                                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
+                                    border: "1px solid #e5e7eb"
+                                }}
+                            >
+                                <Text size="sm" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                    {otherUser.name || otherUser.username} is typing
+                                    <span style={{ display: "flex", gap: "2px" }}>
+                                        <span
+                                            style={{
+                                                width: "4px",
+                                                height: "4px",
+                                                backgroundColor: "#9ca3af",
+                                                borderRadius: "50%",
+                                                animation: "bounce 1.4s infinite ease-in-out",
+                                                animationDelay: "0s"
+                                            }}
+                                        ></span>
+                                        <span
+                                            style={{
+                                                width: "4px",
+                                                height: "4px",
+                                                backgroundColor: "#9ca3af",
+                                                borderRadius: "50%",
+                                                animation: "bounce 1.4s infinite ease-in-out",
+                                                animationDelay: "0.2s"
+                                            }}
+                                        ></span>
+                                        <span
+                                            style={{
+                                                width: "4px",
+                                                height: "4px",
+                                                backgroundColor: "#9ca3af",
+                                                borderRadius: "50%",
+                                                animation: "bounce 1.4s infinite ease-in-out",
+                                                animationDelay: "0.4s"
+                                            }}
+                                        ></span>
+                                    </span>
                                 </Text>
                             </Paper>
                         </Group>
                     )}
                 </Stack>
             </ScrollArea>
+
+            <style jsx>{`
+                @keyframes bounce {
+                    0%,
+                    60%,
+                    100% {
+                        transform: translateY(0);
+                    }
+                    30% {
+                        transform: translateY(-10px);
+                    }
+                }
+            `}</style>
         </Paper>
     )
 }

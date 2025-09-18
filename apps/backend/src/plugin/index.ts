@@ -8,7 +8,7 @@ import jwt from "./jwt"
 import { main } from "../"
 
 export default async function Plugin(fastify: Awaited<ReturnType<typeof main>>) {
-    await rl(fastify)
+    // await rl(fastify)
     await swagger(fastify)
     await swagger_ui(fastify)
     await socket(fastify)

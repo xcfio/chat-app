@@ -22,8 +22,7 @@ export default (fastify: Awaited<ReturnType<typeof main>>) => (socket: Authentic
             return
         }
 
-        const mockRequest = { headers: { cookie: cookieHeader } } as any
-        const cookies = fastify.parseCookie(mockRequest)
+        const cookies = fastify.parseCookie(cookieHeader)
         const authCookie = cookies.auth
 
         if (!authCookie) {
@@ -36,7 +35,10 @@ export default (fastify: Awaited<ReturnType<typeof main>>) => (socket: Authentic
             return
         }
 
-        const decoded = fastify.jwt.verify(authCookie) as JWTPayload
+        const tokenParts = authCookie.split(".")
+        const cleanToken = tokenParts.length >= 3 ? tokenParts.slice(0, 3).join(".") : authCookie
+        const decoded = fastify.jwt.verify(cleanToken) as JWTPayload
+
         socket.user = decoded
 
         console.log(`User ${socket.user.username} (${socket.user.id}) connected with socket ${socket.id}`)
