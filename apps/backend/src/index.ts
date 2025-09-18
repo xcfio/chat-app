@@ -30,8 +30,6 @@ export async function main() {
                 reply.clearCookie("auth", {
                     path: "/",
                     signed: true,
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === "production",
                     sameSite: "strict"
                 })
 
@@ -59,8 +57,6 @@ export async function main() {
                 reply.clearCookie("auth", {
                     path: "/",
                     signed: true,
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === "production",
                     sameSite: "strict"
                 })
 
