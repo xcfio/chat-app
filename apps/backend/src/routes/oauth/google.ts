@@ -231,6 +231,8 @@ export default function AuthGoogle(fastify: Awaited<ReturnType<typeof main>>) {
                 const jwt = fastify.jwt.sign(payload)
                 reply.setCookie("auth", jwt, {
                     signed: true,
+                    httpOnly: true,
+                    secure: true,
                     sameSite: "none",
                     maxAge: tokenData.expires_in,
                     path: "/"

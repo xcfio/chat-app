@@ -178,6 +178,8 @@ export default function SessionRefresh(fastify: Awaited<ReturnType<typeof main>>
 
                 reply.setCookie("auth", newJwtToken, {
                     signed: true,
+                    httpOnly: true,
+                    secure: true,
                     sameSite: "none",
                     maxAge: cookieMaxAge,
                     path: "/"

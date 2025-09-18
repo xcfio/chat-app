@@ -234,6 +234,8 @@ export default function AuthGitHub(fastify: Awaited<ReturnType<typeof main>>) {
                 const jwt = fastify.jwt.sign(payload)
                 reply.setCookie("auth", jwt, {
                     signed: true,
+                    httpOnly: true,
+                    secure: true,
                     sameSite: "none",
                     maxAge: 7 * 24 * 60 * 60,
                     path: "/"
