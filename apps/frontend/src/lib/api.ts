@@ -2,7 +2,7 @@
 import axios from "axios"
 import { User, Conversation, Message } from "./types"
 
-const API_BASE = process.env.NEXT_PUBLIC_API_ENDPOINT || "http://localhost:3001"
+const API_BASE = process.env.NEXT_PUBLIC_API_ENDPOINT || "http://localhost:7200"
 
 const api = axios.create({
     baseURL: API_BASE,
