@@ -77,8 +77,8 @@ export default function GetMessages(fastify: Awaited<ReturnType<typeof main>>) {
 
                 const formattedMessages = messages.map((message) => ({
                     ...message,
-                    createdAt: message.createdAt?.toISOString() || new Date().toISOString(),
-                    editedAt: message.editedAt?.toISOString() || null
+                    createdAt: message.createdAt?.toISOString() ?? new Date().toISOString(),
+                    editedAt: message.editedAt?.toISOString() ?? null
                 }))
 
                 return reply.code(200).send(formattedMessages)

@@ -58,10 +58,7 @@ export default function ReadMessage(fastify: Awaited<ReturnType<typeof main>>) {
                     throw CreateError(404, "MESSAGE_NOT_FOUND", "Message not found")
                 }
 
-                await db
-                    .update(table.message)
-                    .set({ status: "read", editedAt: new Date() })
-                    .where(eq(table.message.id, id))
+                await db.update(table.message).set({ status: "read" }).where(eq(table.message.id, id))
 
                 return reply.code(200).send({
                     success: true,
