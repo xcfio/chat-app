@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { Paper, Group, Avatar, Text, Stack, ActionIcon, Menu, ScrollArea, Loader, Badge } from "@mantine/core"
-import { IconDots, IconEdit, IconTrash, IconCheck, IconChecks } from "@tabler/icons-react"
+import { MoreHorizontal, Edit, Trash2, Check, CheckCheck } from "lucide-react"
 import { notifications } from "@mantine/notifications"
 import { messages } from "@/lib/api"
 import { Message, User } from "@/lib/types"
@@ -80,7 +80,12 @@ export function MessageList({ conversationId, otherUser, onEditMessage }: Messag
 
         const handleNewMessage = (message: Message) => {
             if (message.conversation === conversationId) {
-                setMessageList((prev) => [...prev, message])
+                setMessageList((prev) => {
+                    // Check if message already exists to avoid duplicates
+                    const exists = prev.some((m) => m.id === message.id)
+                    if (exists) return prev
+                    return [...prev, message]
+                })
                 scrollToBottom()
             }
         }
@@ -148,11 +153,11 @@ export function MessageList({ conversationId, otherUser, onEditMessage }: Messag
     const getMessageStatus = (message: Message) => {
         switch (message.status) {
             case "sent":
-                return <IconCheck size={14} color="rgba(255,255,255,0.8)" />
+                return <Check size={14} color="rgba(255,255,255,0.8)" />
             case "delivered":
-                return <IconChecks size={14} color="rgba(255,255,255,0.8)" />
+                return <CheckCheck size={14} color="rgba(255,255,255,0.8)" />
             case "read":
-                return <IconChecks size={14} color="#22c55e" />
+                return <CheckCheck size={14} color="#22c55e" />
             default:
                 return null
         }
@@ -234,7 +239,7 @@ export function MessageList({ conversationId, otherUser, onEditMessage }: Messag
                                                             size="xs"
                                                             style={{ color: "rgba(255,255,255,0.8)" }}
                                                         >
-                                                            <IconDots size={12} />
+                                                            <MoreHorizontal size={12} />
                                                         </ActionIcon>
                                                     </Menu.Target>
 
@@ -246,14 +251,14 @@ export function MessageList({ conversationId, otherUser, onEditMessage }: Messag
                                                         }}
                                                     >
                                                         <Menu.Item
-                                                            leftSection={<IconEdit size={14} />}
+                                                            leftSection={<Edit size={14} />}
                                                             onClick={() => onEditMessage(message)}
                                                             style={{ color: "#374151" }}
                                                         >
                                                             Edit
                                                         </Menu.Item>
                                                         <Menu.Item
-                                                            leftSection={<IconTrash size={14} />}
+                                                            leftSection={<Trash2 size={14} />}
                                                             color="red"
                                                             onClick={() => deleteMessage(message.id)}
                                                         >

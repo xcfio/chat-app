@@ -22,10 +22,9 @@ export function GetConversation(fastify: Awaited<ReturnType<typeof main>>) {
                 200: Type.Array(Conversation, {
                     description: "Array of conversation objects for the authenticated user",
                     maxItems: 100,
-                    minItems: 1
+                    minItems: 0
                 }),
                 401: ErrorResponse(401, "Unauthorized - authentication required"),
-                404: ErrorResponse(404, "Not found - Conversation not found error"),
                 429: ErrorResponse(429, "Too many requests - rate limit exceeded"),
                 500: ErrorResponse(500, "Internal server error")
             }
@@ -48,10 +47,6 @@ export function GetConversation(fastify: Awaited<ReturnType<typeof main>>) {
                     .orderBy(desc(table.conversation.updatedAt))
                     .limit(limit)
                     .offset(offset)
-
-                if (!conversations.length) {
-                    throw CreateError(404, "NO_CONVERSATIONS_FOUND", "No conversations found")
-                }
 
                 return reply.status(200).send(
                     conversations.map((x) => ({

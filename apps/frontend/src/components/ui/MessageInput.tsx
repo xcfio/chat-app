@@ -3,7 +3,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import { TextInput, ActionIcon, Group, Paper, Button } from "@mantine/core"
-import { IconSend, IconX } from "@tabler/icons-react"
+import { Send, X } from "lucide-react"
 import { notifications } from "@mantine/notifications"
 import { messages } from "@/lib/api"
 import { Message } from "@/lib/types"
@@ -16,7 +16,7 @@ interface MessageInputProps {
 }
 
 export function MessageInput({ conversationId, editingMessage, onCancelEdit }: MessageInputProps) {
-    const [message, setMessage] = useState("")
+    const [message, setMessage] = useState("asdf")
     const [sending, setSending] = useState(false)
     const inputRef = useRef<HTMLInputElement>(null)
     const { socket, startTyping, stopTyping } = useSocket()
@@ -53,15 +53,16 @@ export function MessageInput({ conversationId, editingMessage, onCancelEdit }: M
 
         try {
             if (editingMessage) {
-                await messages.edit(editingMessage.id, message.trim())
+                const response = await messages.edit(editingMessage.id, message.trim())
                 onCancelEdit()
+
                 notifications.show({
                     title: "Success",
                     message: "Message edited",
                     color: "green"
                 })
             } else {
-                await messages.send(conversationId, message.trim())
+                const response = await messages.send(conversationId, message.trim())
             }
             setMessage("")
         } catch (error) {
@@ -81,7 +82,7 @@ export function MessageInput({ conversationId, editingMessage, onCancelEdit }: M
                 <Group mb="sm" justify="space-between">
                     <span className="text-sm text-gray-600">Editing message</span>
                     <ActionIcon variant="subtle" size="sm" onClick={onCancelEdit}>
-                        <IconX size={16} />
+                        <X size={16} />
                     </ActionIcon>
                 </Group>
             )}
@@ -112,7 +113,7 @@ export function MessageInput({ conversationId, editingMessage, onCancelEdit }: M
                         disabled={!message.trim() || sending}
                         loading={sending}
                     >
-                        <IconSend size={18} />
+                        <Send size={18} />
                     </ActionIcon>
                 </Group>
             </form>
