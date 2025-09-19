@@ -1,7 +1,7 @@
 // src/components/ui/AuthButtons.tsx
 "use client"
 
-import { Button, Text, Card, Stack, Box, Badge } from "@mantine/core"
+import { Button, Text, Card, Stack, Box } from "@mantine/core"
 import { Github } from "lucide-react"
 import { useAuth } from "../providers/AuthProvider"
 
@@ -50,8 +50,24 @@ export function AuthButtons() {
 
                     {/* Buttons */}
                     <Stack gap="md" w="100%">
-                        {/* GitHub Button with Recommended Badge */}
-                        <Box style={{ position: "relative" }}>
+                        {/* GitHub Button with Recommended text */}
+                        <Box>
+                            <Text
+                                size="xs"
+                                ta="left"
+                                mb={4}
+                                fw={700}
+                                style={{
+                                    backgroundImage: "linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #8b5cf6 100%)",
+                                    WebkitBackgroundClip: "text",
+                                    backgroundClip: "text",
+                                    WebkitTextFillColor: "transparent",
+                                    color: "transparent",
+                                    display: "inline-block"
+                                }}
+                            >
+                                ⭐ Recommended
+                            </Text>
                             <Button
                                 leftSection={<Github size={20} />}
                                 size="lg"
@@ -59,46 +75,29 @@ export function AuthButtons() {
                                 h={56}
                                 c="white"
                                 style={{
-                                    background: "linear-gradient(135deg, #24292e 0%, #1a1e22 100%)",
-                                    border: "1px solid #444d56",
+                                    backgroundImage: "linear-gradient(135deg, #24292e 0%, #1a1e22 100%)",
+                                    backgroundColor: "transparent",
+                                    border: "2px solid #3b82f6",
                                     fontSize: "16px",
                                     fontWeight: 500,
                                     transition: "all 0.3s ease",
-                                    boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)"
+                                    boxShadow: "0 4px 15px rgba(59, 130, 246, 0.2)"
                                 }}
                                 styles={{
                                     root: {
                                         "&:hover": {
-                                            background: "linear-gradient(135deg, #2f363d 0%, #24292e 100%)",
+                                            backgroundImage: "linear-gradient(135deg, #2f363d 0%, #24292e 100%)",
+                                            backgroundColor: "transparent",
                                             transform: "translateY(-2px)",
-                                            boxShadow: "0 8px 25px rgba(0, 0, 0, 0.3)"
+                                            boxShadow: "0 8px 25px rgba(59, 130, 246, 0.3)",
+                                            borderColor: "#2563eb"
                                         }
                                     }
                                 }}
                                 onClick={() => login("github")}
                                 fullWidth
                             >
-                                <Box
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                        width: "100%"
-                                    }}
-                                >
-                                    <span>Sign in with GitHub</span>
-                                    <Badge
-                                        size="xs"
-                                        color="green"
-                                        variant="filled"
-                                        style={{
-                                            fontSize: "10px",
-                                            marginLeft: "8px"
-                                        }}
-                                    >
-                                        Recommended
-                                    </Badge>
-                                </Box>
+                                Sign in with GitHub
                             </Button>
                         </Box>
 
@@ -129,8 +128,7 @@ export function AuthButtons() {
                             h={56}
                             c="white"
                             style={{
-                                background:
-                                    "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
+                                background: "linear-gradient(135deg, #434343 0%, #2b2b2b 100%)",
                                 border: "1px solid rgba(255, 255, 255, 0.2)",
                                 fontSize: "16px",
                                 fontWeight: 500,
@@ -140,8 +138,7 @@ export function AuthButtons() {
                             styles={{
                                 root: {
                                     "&:hover": {
-                                        background:
-                                            "linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%)",
+                                        background: "linear-gradient(135deg, #515151 0%, #434343 100%)",
                                         borderColor: "rgba(255, 255, 255, 0.3)",
                                         transform: "translateY(-2px)",
                                         boxShadow: "0 8px 25px rgba(0, 0, 0, 0.3)"
