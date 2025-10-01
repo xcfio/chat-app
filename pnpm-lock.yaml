@@ -42,8 +42,8 @@ importers:
         specifier: ^5.2.3
         version: 5.2.3
       '@fastify/type-provider-typebox':
-        specifier: ^5.2.0
-        version: 5.2.0(@sinclair/typebox@0.34.41)
+        specifier: ^6.0.0
+        version: 6.0.0(typebox@1.0.24)
       '@sinclair/typebox':
         specifier: ^0.34.40
         version: 0.34.41
@@ -576,10 +576,10 @@ packages:
   '@fastify/swagger@9.5.2':
     resolution: {integrity: sha512-8e8w/LItg/cF6IR/hYKtnt+E0QImees5o3YWJsTLxaIk+tzNUEc6Z2Ursi4oOHWwUlKjUCnV6yh5z5ZdxvlsWA==}
 
-  '@fastify/type-provider-typebox@5.2.0':
-    resolution: {integrity: sha512-RoUFTQNYlaVM/gXosFqlrUAD/JHC+OXLcj4DxNoMOag2GI7OydfCt+3vdT+6D2daJwhGAdkpxB0wLNqS7gf4CQ==}
+  '@fastify/type-provider-typebox@6.0.0':
+    resolution: {integrity: sha512-rzRQ/VCIRqaKiT8QMSNVw+zlbmVetRMlZLr9ZoEAKieI3aZUcJAMPCmUmUpU1BCU4nuoweOTZvZIPpnHPsa2xQ==}
     peerDependencies:
-      '@sinclair/typebox': '>=0.26 <=0.34'
+      typebox: ^1.0.13
 
   '@floating-ui/core@1.7.3':
     resolution: {integrity: sha512-sGnvb5dmrJaKEZ+LDIpguvdX3bDlEllmv4/ClQ9awcmCZrlx5jQyyMWFM5kBI+EyNOCDDiKk8il0zeuX3Zlg/w==}
@@ -2056,6 +2056,9 @@ packages:
     resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
     engines: {node: '>=16'}
 
+  typebox@1.0.24:
+    resolution: {integrity: sha512-aDMcyLsYo4LD6Itiuxj2QLKHgqxF13nq0tbYUuq5cDUYjl6XfR1V/95JgqiIqXFxX2J8rgUo8HhdkOGG+oO+fQ==}
+
   typescript@5.9.2:
     resolution: {integrity: sha512-CWBzXQrc/qOkhidw1OzBTQuYRbfyxDXJMVJ1XNwUHGROVmuaeiEm3OslpZ1RV96d7SKKjZKrSJu3+t/xlw3R9A==}
     engines: {node: '>=14.17'}
@@ -2540,9 +2543,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@fastify/type-provider-typebox@5.2.0(@sinclair/typebox@0.34.41)':
+  '@fastify/type-provider-typebox@6.0.0(typebox@1.0.24)':
     dependencies:
-      '@sinclair/typebox': 0.34.41
+      typebox: 1.0.24
 
   '@floating-ui/core@1.7.3':
     dependencies:
@@ -3903,6 +3906,8 @@ snapshots:
       turbo-windows-arm64: 2.5.8
 
   type-fest@4.41.0: {}
+
+  typebox@1.0.24: {}
 
   typescript@5.9.2: {}
 
