@@ -35,7 +35,7 @@
         "uuid": "^13.0.0"
     },
     "devDependencies": {
-        "@types/node": "^24.7.1",
+        "@types/node": "^24.8.0",
         "drizzle-kit": "^0.31.5"
     }
 }
