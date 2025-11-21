@@ -11,9 +11,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
     title: "Chat App",
     description: "Real-time chat application with Next.js and Socket.IO",
-    icons: {
-        icon: "/favicon.svg"
-    }
+    icons: { icon: "/favicon.svg" }
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

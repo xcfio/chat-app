@@ -3,7 +3,7 @@
 import { useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Container, Center, Loader, Text, Alert } from "@mantine/core"
-import { IconX } from "@tabler/icons-react"
+import { X } from "lucide-react"
 import { useAuth } from "@/components/providers/AuthProvider"
 
 export default function AuthPageContent() {
@@ -34,7 +34,7 @@ export default function AuthPageContent() {
         return (
             <Container size="sm" h="100vh">
                 <Center h="100%">
-                    <Alert icon={<IconX size={16} />} title="Authentication Error" color="red">
+                    <Alert icon={<X size={16} />} title="Authentication Error" color="red">
                         {error === "access_denied"
                             ? "Authentication was cancelled or denied"
                             : "An error occurred during authentication"}

@@ -2,7 +2,7 @@ import { CreateError, isFastifyError } from "../../function"
 import { ErrorResponse, JWTPayload } from "../../type"
 import { db, table } from "../../database"
 import { main } from "../../"
-import { Type, Static } from "@sinclair/typebox"
+import { Type, Static } from "typebox"
 import { randomBytes } from "node:crypto"
 
 export const GitHubUserSchema = Type.Object({

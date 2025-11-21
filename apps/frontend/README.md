@@ -79,7 +79,7 @@ A modern, real-time chat application built with Next.js 15, TypeScript, Mantine 
 
 - **Mantine UI v7** - Modern React components library
 - **Tailwind CSS v3** - Utility-first CSS framework
-- **@tabler/icons-react** - Comprehensive icon library
+- **lucide-react** - Beautiful & consistent icon library
 - **@emotion/react** - CSS-in-JS library for Mantine
 
 ### Real-time Communication
