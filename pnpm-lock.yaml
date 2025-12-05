@@ -43,7 +43,7 @@ importers:
         version: 5.2.3
       '@fastify/type-provider-typebox':
         specifier: ^6.1.0
-        version: 6.1.0(typebox@1.0.55)
+        version: 6.1.0(typebox@1.0.61)
       drizzle-orm:
         specifier: ^0.44.7
         version: 0.44.7(postgres@3.4.7)
@@ -60,8 +60,8 @@ importers:
         specifier: ^4.8.1
         version: 4.8.1
       typebox:
-        specifier: ^1.0.55
-        version: 1.0.55
+        specifier: ^1.0.61
+        version: 1.0.61
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -1630,6 +1630,7 @@ packages:
   next@16.0.3:
     resolution: {integrity: sha512-Ka0/iNBblPFcIubTA1Jjh6gvwqfjrGq1Y2MTI5lbjeLIAfmC+p5bQmojpRZqgHHVu5cG4+qdIiwXiBSm/8lZ3w==}
     engines: {node: '>=20.9.0'}
+    deprecated: This version has a security vulnerability. Please upgrade to a patched version. See https://nextjs.org/blog/CVE-2025-66478 for more details.
     hasBin: true
     peerDependencies:
       '@opentelemetry/api': ^1.1.0
@@ -2022,8 +2023,8 @@ packages:
     resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
     engines: {node: '>=16'}
 
-  typebox@1.0.55:
-    resolution: {integrity: sha512-TP02wN0B6tDZngprrGVu/Z9s/QUyVEmR7VIg1yEOtsqyDdXXEoQPSfWdkD2PsA2lGLxu6GgwOTtGZVS9CAoERg==}
+  typebox@1.0.61:
+    resolution: {integrity: sha512-5KeeL5QoPBoYm8Z7tGR1Pw9FjWA75MLhVuiSMCRgtgTg/d2+kTvolFddhOUua9FxpIaqXznFPZcc3sl6cEpafw==}
 
   typescript@5.9.3:
     resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
@@ -2505,9 +2506,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@fastify/type-provider-typebox@6.1.0(typebox@1.0.55)':
+  '@fastify/type-provider-typebox@6.1.0(typebox@1.0.61)':
     dependencies:
-      typebox: 1.0.55
+      typebox: 1.0.61
 
   '@floating-ui/core@1.7.3':
     dependencies:
@@ -3831,7 +3832,7 @@ snapshots:
 
   type-fest@4.41.0: {}
 
-  typebox@1.0.55: {}
+  typebox@1.0.61: {}
 
   typescript@5.9.3: {}
 
