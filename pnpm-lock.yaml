@@ -45,8 +45,8 @@ importers:
         specifier: ^6.1.0
         version: 6.1.0(typebox@1.0.62)
       drizzle-orm:
-        specifier: ^0.45.0
-        version: 0.45.0(postgres@3.4.7)
+        specifier: ^0.45.1
+        version: 0.45.1(postgres@3.4.7)
       fastify:
         specifier: ^5.6.2
         version: 5.6.2
@@ -1144,8 +1144,8 @@ packages:
     resolution: {integrity: sha512-hOzRGSdyKIU4FcTSFYGKdXEjFsncVwHZ43gY3WU5Bz9j5Iadp6Rh6hxLSQ1IWXpKLBKt/d5y1cpSPcV+FcoQ1A==}
     hasBin: true
 
-  drizzle-orm@0.45.0:
-    resolution: {integrity: sha512-lyd9VRk3SXKRjV/gQckQzmJgkoYMvVG3A2JAV0vh3L+Lwk+v9+rK5Gj0H22y+ZBmxsrRBgJ5/RbQCN7DWd1dtQ==}
+  drizzle-orm@0.45.1:
+    resolution: {integrity: sha512-Te0FOdKIistGNPMq2jscdqngBRfBpC8uMFVwqjf6gtTVJHIQ/dosgV/CLBU2N4ZJBsXL5savCba9b0YJskKdcA==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
       '@cloudflare/workers-types': '>=4'
@@ -2990,7 +2990,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.45.0(postgres@3.4.7):
+  drizzle-orm@0.45.1(postgres@3.4.7):
     optionalDependencies:
       postgres: 3.4.7
 
