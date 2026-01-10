@@ -82,14 +82,14 @@ importers:
         specifier: ^11.14.0
         version: 11.14.0(@types/react@19.2.6)(react@19.2.0)
       '@mantine/core':
-        specifier: ^8.3.10
-        version: 8.3.10(@mantine/hooks@8.3.10(react@19.2.0))(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        specifier: ^8.3.11
+        version: 8.3.11(@mantine/hooks@8.3.10(react@19.2.0))(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@mantine/hooks':
         specifier: ^8.3.10
         version: 8.3.10(react@19.2.0)
       '@mantine/notifications':
         specifier: ^8.3.8
-        version: 8.3.8(@mantine/core@8.3.10(@mantine/hooks@8.3.10(react@19.2.0))(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(@mantine/hooks@8.3.10(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 8.3.8(@mantine/core@8.3.11(@mantine/hooks@8.3.10(react@19.2.0))(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(@mantine/hooks@8.3.10(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@tailwindcss/postcss':
         specifier: ^4.1.18
         version: 4.1.18
@@ -768,10 +768,10 @@ packages:
     resolution: {integrity: sha512-9I2Zn6+NJLfaGoz9jN3lpwDgAYvfGeNYdbAIjJOqzs4Tpc+VU3Jqq4IofSUBKajiDS8k9fZIg18/z13mpk1bsA==}
     engines: {node: '>=8'}
 
-  '@mantine/core@8.3.10':
-    resolution: {integrity: sha512-aKQFETN14v6GtM07b/G5yJneMM1yrgf9mNrTah6GVy5DvQM0AeutITT7toHqh5gxxwzdg/DoY+HQsv5zhqnc5g==}
+  '@mantine/core@8.3.11':
+    resolution: {integrity: sha512-FWXp94tiTFdh8BKc7UTNdIuumD96JFxLF/VvUWGRzf5i563Ye0Ma/aZtOBwpdEtdIQkojOhoMMV76k5toOQgEQ==}
     peerDependencies:
-      '@mantine/hooks': 8.3.10
+      '@mantine/hooks': 8.3.11
       react: ^18.x || ^19.x
       react-dom: ^18.x || ^19.x
 
@@ -1953,8 +1953,8 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  tabbable@6.3.0:
-    resolution: {integrity: sha512-EIHvdY5bPLuWForiR/AN2Bxngzpuwn1is4asboytXtpTgsArc+WmSJKVLlhdh71u7jFcryDqB2A8lQvj78MkyQ==}
+  tabbable@6.4.0:
+    resolution: {integrity: sha512-05PUHKSNE8ou2dwIxTngl4EzcnsCDZGJ/iCLtDflR/SHB/ny14rXc+qU5P4mG9JkusiV7EivzY9Mhm55AzAvCg==}
 
   tailwindcss@4.1.18:
     resolution: {integrity: sha512-4+Z+0yiYyEtUVCScyfHCxOYP06L5Ne+JiHhY2IjR2KWMIWhJOYZKLSGZaP5HkZ8+bY0cxfzwDE5uOmzFXyIwxw==}
@@ -2523,7 +2523,7 @@ snapshots:
       '@floating-ui/utils': 0.2.10
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
-      tabbable: 6.3.0
+      tabbable: 6.4.0
 
   '@floating-ui/utils@0.2.10': {}
 
@@ -2660,7 +2660,7 @@ snapshots:
 
   '@lukeed/ms@2.0.2': {}
 
-  '@mantine/core@8.3.10(@mantine/hooks@8.3.10(react@19.2.0))(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
+  '@mantine/core@8.3.11(@mantine/hooks@8.3.10(react@19.2.0))(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@floating-ui/react': 0.27.16(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@mantine/hooks': 8.3.10(react@19.2.0)
@@ -2678,9 +2678,9 @@ snapshots:
     dependencies:
       react: 19.2.0
 
-  '@mantine/notifications@8.3.8(@mantine/core@8.3.10(@mantine/hooks@8.3.10(react@19.2.0))(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(@mantine/hooks@8.3.10(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
+  '@mantine/notifications@8.3.8(@mantine/core@8.3.11(@mantine/hooks@8.3.10(react@19.2.0))(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(@mantine/hooks@8.3.10(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:
-      '@mantine/core': 8.3.10(@mantine/hooks@8.3.10(react@19.2.0))(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@mantine/core': 8.3.11(@mantine/hooks@8.3.10(react@19.2.0))(@types/react@19.2.6)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@mantine/hooks': 8.3.10(react@19.2.0)
       '@mantine/store': 8.3.8(react@19.2.0)
       react: 19.2.0
@@ -3777,7 +3777,7 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  tabbable@6.3.0: {}
+  tabbable@6.4.0: {}
 
   tailwindcss@4.1.18: {}
 
