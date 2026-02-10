@@ -43,7 +43,7 @@ importers:
         version: 5.2.4
       '@fastify/type-provider-typebox':
         specifier: ^6.1.0
-        version: 6.1.0(typebox@1.0.76)
+        version: 6.1.0(typebox@1.0.81)
       drizzle-orm:
         specifier: ^0.45.1
         version: 0.45.1(postgres@3.4.7)
@@ -60,8 +60,8 @@ importers:
         specifier: ^4.8.3
         version: 4.8.3
       typebox:
-        specifier: ^1.0.76
-        version: 1.0.76
+        specifier: ^1.0.81
+        version: 1.0.81
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -1933,8 +1933,8 @@ packages:
     resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
     engines: {node: '>=16'}
 
-  typebox@1.0.76:
-    resolution: {integrity: sha512-BAMoCFfnoAJk45FwY9n2GTyQUpGuEq6R3VogsXED+qWZ46v2srKNO5/s/q49C9fpYfZL8UcoQHGIvTorfmVJ6g==}
+  typebox@1.0.81:
+    resolution: {integrity: sha512-bCslZUmZESHhBn4kHDghzH2oo3qu8m2W89xDLxQHv/aPvY4i81Nd1jvijlBp9wSpsVytDSfSoosbiBAjgsNb2Q==}
 
   typescript@5.9.3:
     resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
@@ -2410,9 +2410,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@fastify/type-provider-typebox@6.1.0(typebox@1.0.76)':
+  '@fastify/type-provider-typebox@6.1.0(typebox@1.0.81)':
     dependencies:
-      typebox: 1.0.76
+      typebox: 1.0.81
 
   '@floating-ui/core@1.7.3':
     dependencies:
@@ -3651,7 +3651,7 @@ snapshots:
 
   type-fest@4.41.0: {}
 
-  typebox@1.0.76: {}
+  typebox@1.0.81: {}
 
   typescript@5.9.3: {}
 
