@@ -19,7 +19,7 @@
         "email": "omarfaruksxp@gmail.com"
     },
     "devDependencies": {
-        "prettier": "^3.7.4",
+        "prettier": "^3.8.1",
         "turbo": "^2.8.7",
         "typescript": "5.9.3"
     },
