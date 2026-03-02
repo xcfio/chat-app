@@ -1,3 +1,5 @@
+import { ComponentExample } from "@/components/component-example"
+
 export default function Page() {
-    return <h1 className="text-2xl font-bold">Hello World</h1>
+    return <ComponentExample />
 }
