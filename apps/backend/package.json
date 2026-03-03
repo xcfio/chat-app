@@ -1,0 +1,40 @@
+{
+    "name": "fastify",
+    "version": "0.0.1",
+    "type": "commonjs",
+    "author": "xcfio",
+    "license": "MIT",
+    "bugs": {
+        "email": "xcfio@proton.me",
+        "url": "https://github.com/xcfio/template"
+    },
+    "scripts": {
+        "db": "drizzle-kit studio --port=4000",
+        "gen": "drizzle-kit generate",
+        "dev": "tsx watch --include src/**/* --no-warnings --env-file-if-exists=.env src/index.ts",
+        "start": "tsx --env-file-if-exists=.env src/index.ts",
+        "test": "tsc --noEmit",
+        "fmt": "prettier --config=.prettierrc --write src",
+        "fmt:test": "prettier --config=.prettierrc --check src",
+        "docker:build": "docker build --tag api .",
+        "docker:start": "docker run --detach --rm --publish 7200:7200 api"
+    },
+    "dependencies": {
+        "@fastify/cookie": "^11.0.2",
+        "@fastify/cors": "^11.2.0",
+        "@fastify/error": "^4.2.0",
+        "@fastify/jwt": "^10.0.0",
+        "@fastify/rate-limit": "^10.3.0",
+        "@fastify/swagger": "^9.7.0",
+        "@fastify/swagger-ui": "^5.2.5",
+        "@fastify/type-provider-typebox": "^6.1.0",
+        "fastify": "^5.7.4",
+        "typebox": "^1.1.5",
+        "typescript": "^5.9.3",
+        "uuid": "^13.0.0",
+        "schema": "workspace:*"
+    },
+    "devDependencies": {
+        "@types/node": "^25.3.3"
+    }
+}
