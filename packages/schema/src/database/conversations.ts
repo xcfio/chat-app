@@ -1,10 +1,16 @@
 import { uuid, pgTable, timestamp } from "drizzle-orm/pg-core"
+import { users } from "./users"
 import { v7 } from "uuid"
 
-export const users = pgTable("users", {
+export const conversations = pgTable("conversations", {
     id: uuid("id")
+        .unique()
         .primaryKey()
         .$defaultFn(() => v7()),
+    users: uuid("users")
+        .array()
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at", { withTimezone: false })
         .notNull()
         .$defaultFn(() => new Date()),
