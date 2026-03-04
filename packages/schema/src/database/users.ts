@@ -1,4 +1,5 @@
 import { uuid, pgTable, text, timestamp, pgEnum, char, check } from "drizzle-orm/pg-core"
+import { createInsertSchema, createSelectSchema, createUpdateSchema } from "drizzle-orm/typebox"
 import { sql } from "drizzle-orm"
 import { v7 } from "uuid"
 
@@ -25,3 +26,7 @@ export const users = pgTable(
     },
     (table) => [check("password_length_check", sql`length(${table.password}) = 128`)]
 )
+
+export const UserInsert = createInsertSchema(users)
+export const UserSelect = createSelectSchema(users)
+export const UserUpdate = createUpdateSchema(users)

@@ -5,6 +5,7 @@ declare global {
             DATABASE_URI: string
             COOKIE_SECRET: string
             JWT_SECRET: string
+            HMAC_SECRET: string
         }
     }
 }

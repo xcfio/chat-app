@@ -1,3 +1,4 @@
+import { createInsertSchema, createSelectSchema, createUpdateSchema } from "drizzle-orm/typebox"
 import { uuid, pgTable, text, timestamp, pgEnum } from "drizzle-orm/pg-core"
 import { conversations } from "./conversations"
 import { users } from "./users"
@@ -27,3 +28,7 @@ export const messages = pgTable("messages", {
         .notNull()
         .$onUpdateFn(() => new Date())
 })
+
+export const MessageInsert = createInsertSchema(messages)
+export const MessageSelect = createSelectSchema(messages)
+export const MessageUpdate = createUpdateSchema(messages)
