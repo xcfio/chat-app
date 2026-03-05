@@ -1,5 +1,5 @@
-import { uuid, pgTable, text, timestamp, pgEnum, char, check } from "drizzle-orm/pg-core"
 import { createInsertSchema, createSelectSchema, createUpdateSchema } from "drizzle-orm/typebox"
+import { uuid, pgTable, text, timestamp, pgEnum, char, check } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 import { v7 } from "uuid"
 
@@ -11,11 +11,11 @@ export const users = pgTable(
             .primaryKey()
             .$defaultFn(() => v7()),
         email: text("email").notNull().unique(),
-        username: text("username").unique().notNull(),
         name: text("name").notNull(),
+        username: text("username").unique().notNull(),
         gender: Gender("gender").notNull(),
         avatar: text("avatar"),
-        password: char("password", { length: 64 }).notNull(),
+        password: char("password", { length: 128 }).notNull(),
         ban: text("ban"),
         createdAt: timestamp("created_at", { withTimezone: false })
             .notNull()
@@ -24,7 +24,11 @@ export const users = pgTable(
             .notNull()
             .$onUpdateFn(() => new Date())
     },
-    (table) => [check("password_length_check", sql`length(${table.password}) = 128`)]
+    (table) => [
+        check("password_length_check", sql`length(${table.password}) = 128`),
+        check("username_format_check", sql`${table.username} ~ '^[a-zA-Z][a-zA-Z0-9-]{3,11}$'`),
+        check("email_format_check", sql`${table.email} ~ '^[^@]+@[^@]+\.[^@]+$'`)
+    ]
 )
 
 export const UserInsert = createInsertSchema(users)

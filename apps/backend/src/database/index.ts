@@ -1,8 +1,19 @@
-import { ConversationInsert, conversations, ConversationSelect, ConversationUpdate } from "./conversations"
-import { MessageInsert, messages, MessageSelect, MessageUpdate } from "./messages"
-import { UserInsert, users, UserSelect, UserUpdate } from "./users"
 import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
+import {
+    conversations,
+    messages,
+    users,
+    ConversationInsert,
+    ConversationSelect,
+    ConversationUpdate,
+    MessageInsert,
+    MessageSelect,
+    MessageUpdate,
+    UserInsert,
+    UserSelect,
+    UserUpdate
+} from "schema"
 
 export const db = drizzle({ client: postgres(process.env.DATABASE_URI) })
 
@@ -16,11 +27,9 @@ export const Schema = {
     ConversationInsert,
     ConversationSelect,
     ConversationUpdate,
-
     MessageInsert,
     MessageSelect,
     MessageUpdate,
-
     UserInsert,
     UserSelect,
     UserUpdate

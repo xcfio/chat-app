@@ -1,9 +1,9 @@
-import { CreateError, HmacPassword, toTypeBox } from "../../function"
-import { db, ErrorResponse, Schema, table } from "schema"
-import { main } from "../../"
-import { eq, or } from "drizzle-orm"
+import { AuthenticatedUser, ErrorResponse, LoginUser, Payload } from "schema"
+import { CreateError, HmacPassword, toTypeBox, xcf } from "../../function"
 import { timingSafeEqual } from "node:crypto"
-import { Type } from "typebox"
+import { db, table } from "../../database"
+import { eq, or } from "drizzle-orm"
+import { main } from "../../"
 
 export default function Login(fastify: Awaited<ReturnType<typeof main>>) {
     fastify.route({
@@ -12,12 +12,9 @@ export default function Login(fastify: Awaited<ReturnType<typeof main>>) {
         schema: {
             description: "Authenticate user and initiate a session",
             tags: ["Authentication"],
-            body: Type.Object({
-                input: Type.String(),
-                password: Type.String()
-            }),
+            body: LoginUser,
             response: {
-                200: Schema.UserInsert,
+                200: AuthenticatedUser,
                 403: ErrorResponse(403, "Forbidden - Incorrect username/email or password"),
                 404: ErrorResponse(404, "Not Found - User Not found"),
                 429: ErrorResponse(429, "Too many requests - rate limit exceeded"),
@@ -25,9 +22,8 @@ export default function Login(fastify: Awaited<ReturnType<typeof main>>) {
             }
         },
         handler: async (request, reply) => {
-            /*
             try {
-                const { input, password, remember } = request.body
+                const { input, password } = request.body
 
                 const [user] = await db
                     .select()
@@ -61,9 +57,8 @@ export default function Login(fastify: Awaited<ReturnType<typeof main>>) {
 
                 return reply.status(200).send(toTypeBox(user))
             } catch (error) {
-                await xcf(error as any)
+                await xcf(error)
             }
-            */
         }
     })
 }

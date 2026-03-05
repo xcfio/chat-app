@@ -1,36 +1,73 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Eye, EyeOff } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { ThemeSwitcher } from "@/components/theme-switcher"
-import { FormEvent, useRef, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { ftc } from "@/lib/fetch"
+
+import { AlertCircleIcon, CheckCircle2Icon, Eye, EyeOff } from "lucide-react"
+import { InputEvent, useRef, useState } from "react"
+import { LoginUser, RegisterUser } from "schema"
+import { Value } from "typebox/value"
+import { useRouter } from "next/navigation"
 
 export default function Page() {
+    const router = useRouter()
+    const errorRef = useRef<HTMLDivElement>(null)
+    const successRef = useRef<HTMLDivElement>(null)
     const passwordRef = useRef<HTMLInputElement>(null)
     const passwordElement = useRef<HTMLDivElement>(null)
     const conformPasswordElement = useRef<HTMLDivElement>(null)
-    const [isRegistration, setIsRegistration] = useState(false)
+
+    const [gender, setGender] = useState<string>("")
     const [show, setShow] = useState(false)
+    const [isRegistration, setIsRegistration] = useState(false)
+    const [error, setError] = useState<{ title: string; description: string } | null>(null)
+    const [success, setSuccess] = useState<{ title: string; description: string } | null>(null)
 
-    function registrationSubmit(form: FormData) {
-        console.log("Form submitted with data:")
-        for (const [key, value] of form.entries()) {
-            console.log(`${key}: ${value}`)
+    async function registrationSubmit(form: FormData) {
+        const data = Object.fromEntries(form.entries())
+
+        if (!Value.Check(RegisterUser, data)) {
+            const errors = [...Value.Errors(RegisterUser, data)]
+            const message = errors.map((e: any) => `${e.path ?? "Form"}: ${e.message}`).join(", ")
+            setError({ title: "Validation failed", description: message })
+            return
+        }
+
+        const error = await ftc.register(data)
+        if (error) console.log(error)
+    }
+
+    async function loginSubmit(form: FormData) {
+        const data = Object.fromEntries(form.entries())
+
+        if (!Value.Check(LoginUser, data)) {
+            const errors = [...Value.Errors(LoginUser, data)]
+            const message = errors.map((e: any) => `${e.path ?? "Form"}: ${e.message}`).join(", ")
+            setError({ title: "Validation failed", description: message })
+            return
+        }
+
+        const error = await ftc.login(data)
+        if (error) console.log(error)
+    }
+
+    function registrationUsernameCheck(event: InputEvent<HTMLInputElement>) {
+        if (!/^[a-zA-Z][a-zA-Z0-9-]{3,11}$/.test(event.currentTarget.value)) {
+            event.currentTarget.setCustomValidity(
+                "Username must be 4-12 characters, start with a letter, and contain only letters, numbers, and hyphens (-)"
+            )
+        } else {
+            event.currentTarget.setCustomValidity("")
         }
     }
 
-    function loginSubmit(form: FormData) {
-        console.log("Form submitted with data:")
-        for (const [key, value] of form.entries()) {
-            console.log(`${key}: ${value}`)
-        }
-    }
-
-    function registrationPasswordCheck(event: FormEvent<HTMLInputElement>) {
+    function registrationPasswordCheck(event: InputEvent<HTMLInputElement>) {
         if (event.currentTarget.value !== passwordRef.current?.value) {
             event.currentTarget.setCustomValidity("Passwords do not match")
             passwordElement.current?.setAttribute("data-invalid", "true")
@@ -41,10 +78,25 @@ export default function Page() {
             conformPasswordElement.current?.setAttribute("data-invalid", "false")
         }
     }
+
     return (
         <>
             <ThemeSwitcher />
             <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-5">
+                {error && (
+                    <Alert ref={errorRef} className="max-w-md rounded-xl" variant="destructive">
+                        <AlertCircleIcon />
+                        <AlertTitle>{error.title}</AlertTitle>
+                        <AlertDescription>{error.description}</AlertDescription>
+                    </Alert>
+                )}
+                {success && (
+                    <Alert ref={successRef} className="max-w-md rounded-xl">
+                        <CheckCircle2Icon />
+                        <AlertTitle>{success.title}</AlertTitle>
+                        <AlertDescription>{success.description}</AlertDescription>
+                    </Alert>
+                )}
                 {isRegistration ? (
                     <Card className="w-full max-w-md">
                         <CardHeader>
@@ -60,6 +112,7 @@ export default function Page() {
                                         </FieldLabel>
                                         <Input
                                             id="name"
+                                            name="name"
                                             placeholder="Enter your name"
                                             title="Enter your name"
                                             required
@@ -71,23 +124,29 @@ export default function Page() {
                                         </FieldLabel>
                                         <Input
                                             id="username"
+                                            name="username"
                                             placeholder="Enter your username"
-                                            pattern="[a-zA-Z][a-zA-Z0-9-]{3,11}"
-                                            title="Username must be 4-12 characters, start with a letter, and contain only letters, numbers, and hyphens"
                                             required
+                                            onInput={registrationUsernameCheck}
                                         />
                                     </Field>
                                     <Field>
                                         <FieldLabel htmlFor="email">
                                             Email <span className="text-destructive">*</span>
                                         </FieldLabel>
-                                        <Input id="email" placeholder="Enter your email" type="email" required />
+                                        <Input
+                                            id="email"
+                                            name="email"
+                                            placeholder="Enter your email"
+                                            type="email"
+                                            required
+                                        />
                                     </Field>
                                     <Field>
                                         <FieldLabel htmlFor="gender">
                                             Gender <span className="text-destructive">*</span>
                                         </FieldLabel>
-                                        <Select>
+                                        <Select onValueChange={setGender} required>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select your gender" />
                                             </SelectTrigger>
@@ -99,6 +158,7 @@ export default function Page() {
                                                 </SelectGroup>
                                             </SelectContent>
                                         </Select>
+                                        <input type="hidden" name="gender" value={gender} />
                                     </Field>
                                     <Field ref={passwordElement}>
                                         <FieldLabel htmlFor="password">
@@ -107,6 +167,7 @@ export default function Page() {
                                         <div className="relative">
                                             <Input
                                                 id="password"
+                                                name="password"
                                                 ref={passwordRef}
                                                 type={show ? "text" : "password"}
                                                 placeholder="Enter your password"
@@ -130,6 +191,7 @@ export default function Page() {
                                         <div className="relative">
                                             <Input
                                                 id="confirmPassword"
+                                                name="confirmPassword"
                                                 type={show ? "text" : "password"}
                                                 placeholder="Confirm your password"
                                                 minLength={6}
@@ -166,10 +228,15 @@ export default function Page() {
                             <form action={loginSubmit}>
                                 <FieldGroup>
                                     <Field>
-                                        <FieldLabel htmlFor="email">
-                                            Email <span className="text-destructive">*</span>
+                                        <FieldLabel htmlFor="input">
+                                            Username or email address <span className="text-destructive">*</span>
                                         </FieldLabel>
-                                        <Input id="email" placeholder="Enter your email" type="email" required />
+                                        <Input
+                                            id="input"
+                                            name="input"
+                                            placeholder="Enter your username or email"
+                                            required
+                                        />
                                     </Field>
                                     <Field ref={passwordElement}>
                                         <div className="flex justify-between items-center">
@@ -180,6 +247,7 @@ export default function Page() {
                                                 type="button"
                                                 variant="link"
                                                 className="text-muted-foreground text-xs p-0 h-auto"
+                                                onClick={() => router.push("/forget")}
                                             >
                                                 Forgot password?
                                             </Button>
@@ -187,6 +255,7 @@ export default function Page() {
                                         <div className="relative">
                                             <Input
                                                 id="password"
+                                                name="password"
                                                 ref={passwordRef}
                                                 type={show ? "text" : "password"}
                                                 placeholder="Enter your password"

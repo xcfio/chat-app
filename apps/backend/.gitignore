@@ -82,6 +82,7 @@ web_modules/
 .env.local
 config*.json
 pnpm-lock.yaml
+log.json
 *.js
 *.csv
 
