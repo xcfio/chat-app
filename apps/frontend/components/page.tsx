@@ -1,4 +1,3 @@
-import { ThemeSwitcher } from "./theme-switcher"
 import { Footer } from "./footer"
 import { cn } from "@/lib/utils"
 
@@ -15,7 +14,7 @@ export function Page({
                     {children}
                 </div>
             </main>
-            {footer ? <Footer /> : <ThemeSwitcher />}
+            {footer && <Footer />}
         </>
     )
 }
