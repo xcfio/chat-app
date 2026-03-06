@@ -55,7 +55,7 @@ importers:
         version: 3.4.8
       schema:
         specifier: workspace:*
-        version: link:../../packages/schema
+        version: link:../../lib/schema
       typebox:
         specifier: ^1.1.6
         version: 1.1.6
@@ -68,7 +68,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: ^25.3.4
-        version: 25.3.4
+        version: 25.3.5
 
   apps/frontend:
     dependencies:
@@ -104,10 +104,10 @@ importers:
         version: 19.2.4(react@19.2.4)
       schema:
         specifier: workspace:*
-        version: link:../../packages/schema
+        version: link:../../lib/schema
       shadcn:
         specifier: ^3.8.5
-        version: 3.8.5(@types/node@25.3.4)(typescript@5.9.3)
+        version: 3.8.5(@types/node@25.3.5)(typescript@5.9.3)
       tailwind-merge:
         specifier: ^3.5.0
         version: 3.5.0
@@ -123,7 +123,7 @@ importers:
         version: 4.2.1
       '@types/node':
         specifier: ^25.3.4
-        version: 25.3.4
+        version: 25.3.5
       '@types/react':
         specifier: ^19.2.14
         version: 19.2.14
@@ -137,7 +137,7 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
-  packages/schema:
+  lib/schema:
     dependencies:
       drizzle-orm:
         specifier: 1.0.0-beta.15-859cf75
@@ -157,7 +157,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: ^25.3.4
-        version: 25.3.4
+        version: 25.3.5
       drizzle-kit:
         specifier: 1.0.0-beta.15-859cf75
         version: 1.0.0-beta.15-859cf75
@@ -203,8 +203,8 @@ packages:
     resolution: {integrity: sha512-YKWi9YuCU04B55h25cnOYZHxXYtEvQEbKST5vqRga7hWY9ydd3FZHdeQF8pyh+acWZvppw13M/LMGx0LABUVMA==}
     engines: {node: '>=18.0.0'}
 
-  '@azure/core-rest-pipeline@1.23.0':
-    resolution: {integrity: sha512-Evs1INHo+jUjwHi1T6SG6Ua/LHOQBCLuKEEE6efIpt4ZOoNonaT1kP32GoOcdNDbfqsD2445CPri3MubBy5DEQ==}
+  '@azure/core-rest-pipeline@1.22.2':
+    resolution: {integrity: sha512-MzHym+wOi8CLUlKCQu12de0nwcq9k9Kuv43j4Wa++CsCpJwps2eeBQwD2Bu8snkxTtDKDx4GwjuR9E8yC8LNrg==}
     engines: {node: '>=20.0.0'}
 
   '@azure/core-tracing@1.3.1':
@@ -1761,11 +1761,8 @@ packages:
   '@types/mssql@9.1.9':
     resolution: {integrity: sha512-P0nCgw6vzY23UxZMnbI4N7fnLGANt4LI4yvxze1paPj+LuN28cFv5EI+QidP8udnId/BKhkcRhm/BleNsjK65A==}
 
-  '@types/node@25.3.4':
-    resolution: {integrity: sha512-NB1qVMIPsjfYtrY+9cCTj2VqLBh/TIDmsZXtmM2Xsn+W2yMlkA9Q1Okpr9W3f1fyGgvelw8ojumDsv8Vc0xufQ==}
-
-  '@types/node@25.3.4':
-    resolution: {integrity: sha512-NB1qVMIPsjfYtrY+9cCTj2VqLBh/TIDmsZXtmM2Xsn+W2yMlkA9Q1Okpr9W3f1fyGgvelw8ojumDsv8Vc0xufQ==}
+  '@types/node@25.3.5':
+    resolution: {integrity: sha512-oX8xrhvpiyRCQkG1MFchB09f+cXftgIXb3a7UUa4Y3wpmZPw5tyZGTLWhlESOLq1Rq6oDlc8npVU2/9xiCuXMA==}
 
   '@types/react-dom@19.2.3':
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
@@ -1784,8 +1781,8 @@ packages:
   '@types/validate-npm-package-name@4.0.2':
     resolution: {integrity: sha512-lrpDziQipxCEeK5kWxvljWYhUvOiB2A9izZd9B2AFarYAkqZshb4lPbRs7zKEic6eGtH8V/2qJW+dPp9OtF6bw==}
 
-  '@typespec/ts-http-runtime@0.3.4':
-    resolution: {integrity: sha512-CI0NhTrz4EBaa0U+HaaUZrJhPoso8sG7ZFya8uQoBA57fjzrjRSv87ekCjLZOFExN+gXE/z0xuN2QfH4H2HrLQ==}
+  '@typespec/ts-http-runtime@0.3.3':
+    resolution: {integrity: sha512-91fp6CAAJSRtH5ja95T1FHSKa8aPW9/Zw6cta81jlZTUw/+Vq8jM/AfF/14h2b71wwR84JUTW/3Y8QPhDAawFA==}
     engines: {node: '>=20.0.0'}
 
   abort-controller@3.0.0:
@@ -2338,9 +2335,6 @@ packages:
 
   fastq@1.19.1:
     resolution: {integrity: sha512-GwLTyxkCXjXbxqIhTsMI2Nui8huMPtnxg7krajPJAjnEG/iiOS7i+zCtWGZR9G0NBKbXKh6X9m9UIsYX/N6vvQ==}
-
-  fastq@1.20.1:
-    resolution: {integrity: sha512-GGToxJ/w1x32s/D2EKND7kTil4n8OVk/9mycTc4VDza13lOvpUZTGX3mFSCtV9ksdGBVzvsyAVLM6mHFThxXxw==}
 
   fastseries@1.7.2:
     resolution: {integrity: sha512-dTPFrPGS8SNSzAt7u/CbMKCJ3s01N04s4JFbORHcmyvVfVKmbhMD1VtRbh5enGHxkaQDqWyLefiKOGGmohGDDQ==}
@@ -3251,13 +3245,8 @@ packages:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
     hasBin: true
 
-  semver@7.7.4:
-    resolution: {integrity: sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA==}
-    engines: {node: '>=10'}
-    hasBin: true
-
-  semver@7.7.4:
-    resolution: {integrity: sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA==}
+  semver@7.7.3:
+    resolution: {integrity: sha512-SdsKMrI9TdgjdweUSR9MweHA4EJ8YxHn8DFaDisvhVlUOe4BF1tLD7GAj0lIqWVl+dPb/rExr0Btby5loQm20Q==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -3682,9 +3671,9 @@ snapshots:
     dependencies:
       '@azure/abort-controller': 2.1.2
       '@azure/core-auth': 1.10.1
-      '@azure/core-rest-pipeline': 1.23.0
+      '@azure/core-rest-pipeline': 1.22.2
       '@azure/core-tracing': 1.3.1
-      '@typespec/ts-http-runtime': 0.3.4
+      '@typespec/ts-http-runtime': 0.3.3
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -3705,7 +3694,7 @@ snapshots:
     dependencies:
       '@azure/abort-controller': 2.1.2
       '@azure/core-auth': 1.10.1
-      '@azure/core-rest-pipeline': 1.23.0
+      '@azure/core-rest-pipeline': 1.22.2
       '@azure/core-tracing': 1.3.1
       '@azure/core-util': 1.13.1
       '@azure/logger': 1.3.0
@@ -3713,11 +3702,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@azure/core-http-compat@2.3.2(@azure/core-client@1.10.1)(@azure/core-rest-pipeline@1.23.0)':
+  '@azure/core-http-compat@2.3.2(@azure/core-client@1.10.1)(@azure/core-rest-pipeline@1.22.2)':
     dependencies:
       '@azure/abort-controller': 2.1.2
       '@azure/core-client': 1.10.1
-      '@azure/core-rest-pipeline': 1.23.0
+      '@azure/core-rest-pipeline': 1.22.2
 
   '@azure/core-lro@2.7.2':
     dependencies:
@@ -3732,14 +3721,14 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@azure/core-rest-pipeline@1.23.0':
+  '@azure/core-rest-pipeline@1.22.2':
     dependencies:
       '@azure/abort-controller': 2.1.2
       '@azure/core-auth': 1.10.1
       '@azure/core-tracing': 1.3.1
       '@azure/core-util': 1.13.1
       '@azure/logger': 1.3.0
-      '@typespec/ts-http-runtime': 0.3.4
+      '@typespec/ts-http-runtime': 0.3.3
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -3751,7 +3740,7 @@ snapshots:
   '@azure/core-util@1.13.1':
     dependencies:
       '@azure/abort-controller': 2.1.2
-      '@typespec/ts-http-runtime': 0.3.4
+      '@typespec/ts-http-runtime': 0.3.3
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -3761,7 +3750,7 @@ snapshots:
       '@azure/abort-controller': 2.1.2
       '@azure/core-auth': 1.10.1
       '@azure/core-client': 1.10.1
-      '@azure/core-rest-pipeline': 1.23.0
+      '@azure/core-rest-pipeline': 1.22.2
       '@azure/core-tracing': 1.3.1
       '@azure/core-util': 1.13.1
       '@azure/logger': 1.3.0
@@ -3777,7 +3766,7 @@ snapshots:
       '@azure/abort-controller': 2.1.2
       '@azure/core-auth': 1.10.1
       '@azure/core-client': 1.10.1
-      '@azure/core-rest-pipeline': 1.23.0
+      '@azure/core-rest-pipeline': 1.22.2
       '@azure/core-tracing': 1.3.1
       '@azure/core-util': 1.13.1
       '@azure/logger': 1.3.0
@@ -3790,10 +3779,10 @@ snapshots:
       '@azure-rest/core-client': 2.5.1
       '@azure/abort-controller': 2.1.2
       '@azure/core-auth': 1.10.1
-      '@azure/core-http-compat': 2.3.2(@azure/core-client@1.10.1)(@azure/core-rest-pipeline@1.23.0)
+      '@azure/core-http-compat': 2.3.2(@azure/core-client@1.10.1)(@azure/core-rest-pipeline@1.22.2)
       '@azure/core-lro': 2.7.2
       '@azure/core-paging': 1.6.2
-      '@azure/core-rest-pipeline': 1.23.0
+      '@azure/core-rest-pipeline': 1.22.2
       '@azure/core-tracing': 1.3.1
       '@azure/core-util': 1.13.1
       '@azure/keyvault-common': 2.0.0
@@ -3805,7 +3794,7 @@ snapshots:
 
   '@azure/logger@1.3.0':
     dependencies:
-      '@typespec/ts-http-runtime': 0.3.4
+      '@typespec/ts-http-runtime': 0.3.3
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -4343,31 +4332,31 @@ snapshots:
 
   '@inquirer/ansi@1.0.2': {}
 
-  '@inquirer/confirm@5.1.21(@types/node@25.3.4)':
+  '@inquirer/confirm@5.1.21(@types/node@25.3.5)':
     dependencies:
-      '@inquirer/core': 10.3.2(@types/node@25.3.4)
-      '@inquirer/type': 3.0.10(@types/node@25.3.4)
+      '@inquirer/core': 10.3.2(@types/node@25.3.5)
+      '@inquirer/type': 3.0.10(@types/node@25.3.5)
     optionalDependencies:
-      '@types/node': 25.3.4
+      '@types/node': 25.3.5
 
-  '@inquirer/core@10.3.2(@types/node@25.3.4)':
+  '@inquirer/core@10.3.2(@types/node@25.3.5)':
     dependencies:
       '@inquirer/ansi': 1.0.2
       '@inquirer/figures': 1.0.15
-      '@inquirer/type': 3.0.10(@types/node@25.3.4)
+      '@inquirer/type': 3.0.10(@types/node@25.3.5)
       cli-width: 4.1.0
       mute-stream: 2.0.0
       signal-exit: 4.1.0
       wrap-ansi: 6.2.0
       yoctocolors-cjs: 2.1.3
     optionalDependencies:
-      '@types/node': 25.3.4
+      '@types/node': 25.3.5
 
   '@inquirer/figures@1.0.15': {}
 
-  '@inquirer/type@3.0.10(@types/node@25.3.4)':
+  '@inquirer/type@3.0.10(@types/node@25.3.5)':
     optionalDependencies:
-      '@types/node': 25.3.4
+      '@types/node': 25.3.5
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
@@ -4471,7 +4460,7 @@ snapshots:
   '@nodelib/fs.walk@1.2.8':
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
-      fastq: 1.20.1
+      fastq: 1.19.1
 
   '@open-draft/deferred-promise@2.2.0': {}
 
@@ -5318,18 +5307,14 @@ snapshots:
 
   '@types/mssql@9.1.9(@azure/core-client@1.10.1)':
     dependencies:
-      '@types/node': 25.3.4
+      '@types/node': 25.3.5
       tarn: 3.0.2
       tedious: 19.2.1(@azure/core-client@1.10.1)
     transitivePeerDependencies:
       - '@azure/core-client'
       - supports-color
 
-  '@types/node@25.3.4':
-    dependencies:
-      undici-types: 7.18.2
-
-  '@types/node@25.3.4':
+  '@types/node@25.3.5':
     dependencies:
       undici-types: 7.18.2
 
@@ -5343,13 +5328,13 @@ snapshots:
 
   '@types/readable-stream@4.0.23':
     dependencies:
-      '@types/node': 25.3.4
+      '@types/node': 25.3.5
 
   '@types/statuses@2.0.6': {}
 
   '@types/validate-npm-package-name@4.0.2': {}
 
-  '@typespec/ts-http-runtime@0.3.4':
+  '@typespec/ts-http-runtime@0.3.3':
     dependencies:
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
@@ -5413,7 +5398,7 @@ snapshots:
   avvio@9.2.0:
     dependencies:
       '@fastify/error': 4.2.0
-      fastq: 1.20.1
+      fastq: 1.19.1
 
   balanced-match@4.0.4: {}
 
@@ -5819,7 +5804,7 @@ snapshots:
       process-warning: 5.0.0
       rfdc: 1.4.1
       secure-json-parse: 4.1.0
-      semver: 7.7.4
+      semver: 7.7.3
       toad-cache: 3.7.0
 
   fastparallel@2.4.1:
@@ -5828,10 +5813,6 @@ snapshots:
       xtend: 4.0.2
 
   fastq@1.19.1:
-    dependencies:
-      reusify: 1.1.0
-
-  fastq@1.20.1:
     dependencies:
       reusify: 1.1.0
 
@@ -6107,7 +6088,7 @@ snapshots:
       lodash.isstring: 4.0.1
       lodash.once: 4.1.1
       ms: 2.1.3
-      semver: 7.7.4
+      semver: 7.7.3
 
   jwa@2.0.1:
     dependencies:
@@ -6271,9 +6252,9 @@ snapshots:
       - '@azure/core-client'
       - supports-color
 
-  msw@2.12.10(@types/node@25.3.4)(typescript@5.9.3):
+  msw@2.12.10(@types/node@25.3.5)(typescript@5.9.3):
     dependencies:
-      '@inquirer/confirm': 5.1.21(@types/node@25.3.4)
+      '@inquirer/confirm': 5.1.21(@types/node@25.3.5)
       '@mswjs/interceptors': 0.41.3
       '@open-draft/deferred-promise': 2.2.0
       '@types/statuses': 2.0.6
@@ -6698,9 +6679,7 @@ snapshots:
 
   semver@6.3.1: {}
 
-  semver@7.7.4: {}
-
-  semver@7.7.4: {}
+  semver@7.7.3: {}
 
   send@1.2.1:
     dependencies:
@@ -6731,7 +6710,7 @@ snapshots:
 
   setprototypeof@1.2.0: {}
 
-  shadcn@3.8.5(@types/node@25.3.4)(typescript@5.9.3):
+  shadcn@3.8.5(@types/node@25.3.5)(typescript@5.9.3):
     dependencies:
       '@antfu/ni': 25.0.0
       '@babel/core': 7.29.0
@@ -6753,7 +6732,7 @@ snapshots:
       fuzzysort: 3.1.0
       https-proxy-agent: 7.0.6
       kleur: 4.1.5
-      msw: 2.12.10(@types/node@25.3.4)(typescript@5.9.3)
+      msw: 2.12.10(@types/node@25.3.5)(typescript@5.9.3)
       node-fetch: 3.3.2
       open: 11.0.0
       ora: 8.2.0
@@ -6779,7 +6758,7 @@ snapshots:
     dependencies:
       '@img/colour': 1.0.0
       detect-libc: 2.1.2
-      semver: 7.7.4
+      semver: 7.7.3
     optionalDependencies:
       '@img/sharp-darwin-arm64': 0.34.5
       '@img/sharp-darwin-x64': 0.34.5
@@ -6934,7 +6913,7 @@ snapshots:
       '@azure/identity': 4.13.0
       '@azure/keyvault-keys': 4.10.0(@azure/core-client@1.10.1)
       '@js-joda/core': 5.7.0
-      '@types/node': 25.3.4
+      '@types/node': 25.3.5
       bl: 6.1.6
       iconv-lite: 0.6.3
       js-md4: 0.3.2
@@ -6950,7 +6929,7 @@ snapshots:
       '@azure/identity': 4.13.0
       '@azure/keyvault-keys': 4.10.0(@azure/core-client@1.10.1)
       '@js-joda/core': 5.7.0
-      '@types/node': 25.3.4
+      '@types/node': 25.3.5
       bl: 6.1.6
       iconv-lite: 0.7.2
       js-md4: 0.3.2

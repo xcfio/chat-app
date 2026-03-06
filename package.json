@@ -1,5 +1,5 @@
 {
-    "name": "chat-app",
+    "name": "chatio",
     "author": "Omar Faruk (Aka. xcfio)",
     "homepage": "https://github.com/xcfio/chat-app#readme",
     "license": "MIT",
@@ -28,3 +28,4 @@
         "node": ">=24"
     }
 }
+

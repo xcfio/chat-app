@@ -3,19 +3,20 @@
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
-import { ThemeSwitcher } from "@/components/theme-switcher"
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Page } from "@/components/page"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ftc } from "@/lib/fetch"
 
-import { AlertCircleIcon, CheckCircle2Icon, Eye, EyeOff } from "lucide-react"
+import { AlertCircleIcon, CheckCircle2Icon, Eye, EyeOff, EyeOffIcon } from "lucide-react"
 import { InputEvent, useRef, useState } from "react"
 import { LoginUser, RegisterUser } from "schema"
-import { Value } from "typebox/value"
 import { useRouter } from "next/navigation"
+import { Value } from "typebox/value"
+import { InputGroup, InputGroupInput, InputGroupAddon } from "@/components/ui/input-group"
 
-export default function Page() {
+export default () => {
     const router = useRouter()
     const errorRef = useRef<HTMLDivElement>(null)
     const successRef = useRef<HTMLDivElement>(null)
@@ -80,8 +81,7 @@ export default function Page() {
     }
 
     return (
-        <>
-            <ThemeSwitcher />
+        <Page>
             <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-5">
                 {error && (
                     <Alert ref={errorRef} className="max-w-md rounded-xl" variant="destructive">
@@ -164,8 +164,8 @@ export default function Page() {
                                         <FieldLabel htmlFor="password">
                                             Password <span className="text-destructive">*</span>
                                         </FieldLabel>
-                                        <div className="relative">
-                                            <Input
+                                        <InputGroup>
+                                            <InputGroupInput
                                                 id="password"
                                                 name="password"
                                                 ref={passwordRef}
@@ -175,21 +175,29 @@ export default function Page() {
                                                 maxLength={30}
                                                 required
                                             />
-                                            <button
-                                                type="button"
-                                                onClick={() => setShow(!show)}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                                            >
-                                                {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                            </button>
-                                        </div>
+                                            <InputGroupAddon align="inline-end">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShow(!show)}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                                                    aria-label="Show Your Password"
+                                                >
+                                                    {show ? (
+                                                        <EyeOff className="h-4 w-4" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4" />
+                                                    )}
+                                                </button>
+                                            </InputGroupAddon>
+                                        </InputGroup>
                                     </Field>
+
                                     <Field ref={conformPasswordElement}>
                                         <FieldLabel htmlFor="confirmPassword">
                                             Confirm Password <span className="text-destructive">*</span>
                                         </FieldLabel>
-                                        <div className="relative">
-                                            <Input
+                                        <InputGroup>
+                                            <InputGroupInput
                                                 id="confirmPassword"
                                                 name="confirmPassword"
                                                 type={show ? "text" : "password"}
@@ -199,14 +207,21 @@ export default function Page() {
                                                 required
                                                 onInput={registrationPasswordCheck}
                                             />
-                                            <button
-                                                type="button"
-                                                onClick={() => setShow(!show)}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                                            >
-                                                {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                            </button>
-                                        </div>
+                                            <InputGroupAddon align="inline-end">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShow(!show)}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                                                    aria-label="Show Your Password"
+                                                >
+                                                    {show ? (
+                                                        <EyeOff className="h-4 w-4" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4" />
+                                                    )}
+                                                </button>
+                                            </InputGroupAddon>
+                                        </InputGroup>
                                     </Field>
                                     <Field orientation="horizontal" className="flex flex-row justify-between">
                                         <Button type="submit">Submit</Button>
@@ -246,14 +261,17 @@ export default function Page() {
                                             <Button
                                                 type="button"
                                                 variant="link"
-                                                className="text-muted-foreground text-xs p-0 h-auto"
+                                                className="text-muted-foreground text-xs p-0 h-auto not-sr-only"
                                                 onClick={() => router.push("/forget")}
                                             >
                                                 Forgot password?
                                             </Button>
+                                            <a className="sr-only" href="/forget">
+                                                Forgot password?
+                                            </a>
                                         </div>
-                                        <div className="relative">
-                                            <Input
+                                        <InputGroup>
+                                            <InputGroupInput
                                                 id="password"
                                                 name="password"
                                                 ref={passwordRef}
@@ -261,14 +279,21 @@ export default function Page() {
                                                 placeholder="Enter your password"
                                                 required
                                             />
-                                            <button
-                                                type="button"
-                                                onClick={() => setShow(!show)}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                                            >
-                                                {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                            </button>
-                                        </div>
+                                            <InputGroupAddon align="inline-end">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShow(!show)}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                                                    aria-label="Show Your Password"
+                                                >
+                                                    {show ? (
+                                                        <EyeOff className="h-4 w-4" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4" />
+                                                    )}
+                                                </button>
+                                            </InputGroupAddon>
+                                        </InputGroup>
                                     </Field>
                                     <Field orientation="horizontal" className="flex flex-row justify-between">
                                         <Button type="submit">Submit</Button>
@@ -282,6 +307,6 @@ export default function Page() {
                     </Card>
                 )}
             </div>
-        </>
+        </Page>
     )
 }

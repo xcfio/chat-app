@@ -1,13 +1,12 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ThemeSwitcher } from "@/components/theme-switcher"
+import { Page } from "@/components/page"
 import { MailIcon } from "lucide-react"
 
-export default function ForgotPassword() {
+export default () => {
     return (
-        <>
-            <ThemeSwitcher />
+        <Page>
             <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-5">
                 <Card className="w-full max-w-md">
                     <CardHeader>
@@ -28,6 +27,6 @@ export default function ForgotPassword() {
                     </CardContent>
                 </Card>
             </div>
-        </>
+        </Page>
     )
 }
