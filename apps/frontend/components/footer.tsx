@@ -4,9 +4,12 @@ import { Github, MessageCircle, HelpCircle, Star, SunIcon, MoonIcon, MonitorIcon
 import { Button } from "@/components/ui/button"
 import { useTheme } from "next-themes"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 
-export default function Footer() {
+export function Footer() {
     const { theme, setTheme } = useTheme()
+    const [mounted, setMounted] = useState(false)
+    useEffect(() => setMounted(true), [])
 
     return (
         <footer className="bg-card border-t border-border mt-16 relative z-10">
@@ -88,8 +91,8 @@ export default function Footer() {
                     </div>
 
                     {/* Appearance */}
-                    <div suppressHydrationWarning>
-                        <h4 className="text-base font-semibold text-foreground mb-4">Appearance</h4>
+                    <div>
+                        <h4 className="text-base font-semibold text-foreground mb-2">Appearance</h4>
                         <div className="flex flex-col">
                             {[
                                 { value: "light", label: "Light", icon: SunIcon },
@@ -101,10 +104,11 @@ export default function Footer() {
                                     variant="ghost"
                                     onClick={() => setTheme(value)}
                                     className="justify-start gap-3 p-2 h-auto text-muted-foreground hover:text-foreground max-w-36"
+                                    aria-label={`Switch to ${label} theme`}
                                 >
                                     <Icon className="h-4 w-4" />
                                     <span className="flex-1 text-left">{label}</span>
-                                    {theme === value && <Check className="h-4 w-4" />}
+                                    {mounted && theme === value && <Check className="h-4 w-4" />}
                                 </Button>
                             ))}
                         </div>

@@ -34,6 +34,14 @@ export default function Login(fastify: Awaited<ReturnType<typeof main>>) {
                     throw CreateError(404, "USER_NOT_FOUND", "User not found")
                 }
 
+                if (user.ban) {
+                    throw CreateError(
+                        403,
+                        "USER_BANNED",
+                        `User is banned. Reason: ${user.ban} Contact support for more information.`
+                    )
+                }
+
                 if (!timingSafeEqual(Buffer.from(user.password), Buffer.from(HmacPassword(password)))) {
                     throw CreateError(403, "INCORRECT_INPUTTED_DATA", "Incorrect username/email or password")
                 }

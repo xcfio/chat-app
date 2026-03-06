@@ -5,7 +5,7 @@ import Type from "typebox"
 export const RegisterUser = Type.Object({
     email: Type.String({ format: "email" }),
     name: UserSelect.properties.name,
-    username: Type.String({ pattern: /^[a-zA-Z][a-zA-Z0-9-]{3,11}$/ }),
+    username: Type.String({ pattern: "^[a-zA-Z][a-zA-Z0-9-]{2,11}$" }),
     gender: UserSelect.properties.gender,
     avatar: Type.Optional(Type.String({ format: "uri" })),
     password: Type.String({ minLength: 6, maxLength: 30 })
@@ -19,7 +19,7 @@ export const LoginUser = Type.Object({
 export const PublicUser = Type.Object({
     id: UUID,
     name: UserSelect.properties.name,
-    username: Type.String({ pattern: /^[a-zA-Z][a-zA-Z0-9-]{3,11}$/ }),
+    username: Type.String({ pattern: "^[a-zA-Z][a-zA-Z0-9-]{2,11}$" }),
     avatar: Type.Optional(Type.String({ format: "uri" })),
     createdAt: Date
 })

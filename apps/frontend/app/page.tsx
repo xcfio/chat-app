@@ -2,19 +2,19 @@
 
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { InputGroup, InputGroupInput, InputGroupAddon } from "@/components/ui/input-group"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field"
-import { Page } from "@/components/page"
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Page } from "@/components/page"
 import { ftc } from "@/lib/fetch"
 
-import { AlertCircleIcon, CheckCircle2Icon, Eye, EyeOff, EyeOffIcon } from "lucide-react"
+import { AlertCircleIcon, CheckCircle2Icon, Eye, EyeOff } from "lucide-react"
 import { InputEvent, useRef, useState } from "react"
 import { LoginUser, RegisterUser } from "schema"
 import { useRouter } from "next/navigation"
 import { Value } from "typebox/value"
-import { InputGroup, InputGroupInput, InputGroupAddon } from "@/components/ui/input-group"
 
 export default () => {
     const router = useRouter()
@@ -40,8 +40,16 @@ export default () => {
             return
         }
 
-        const error = await ftc.register(data)
-        if (error) console.log(error)
+        const output = await ftc.register(data)
+        if (typeof output === "string") {
+            setError({ title: "Registration failed", description: output })
+            setSuccess(null)
+        } else {
+            window.sessionStorage.setItem("user", JSON.stringify(output))
+            setSuccess({ title: "Registration successful", description: `Welcome, ${output.name}! Redirecting...` })
+            setError(null)
+            setTimeout(() => router.push("/"), 2000)
+        }
     }
 
     async function loginSubmit(form: FormData) {
@@ -54,12 +62,27 @@ export default () => {
             return
         }
 
-        const error = await ftc.login(data)
-        if (error) console.log(error)
+        const output = await ftc.login(data)
+        if (typeof output === "string") {
+            setError({ title: "Login failed", description: output })
+            setSuccess(null)
+        } else {
+            window.sessionStorage.setItem("user", JSON.stringify(output))
+            setSuccess({ title: "Login successful", description: `Welcome back, ${output.name}! Redirecting...` })
+            setError(null)
+            setTimeout(() => router.push("/"), 2000)
+        }
+    }
+
+    function changeTabs() {
+        setIsRegistration(!isRegistration)
+        setSuccess(null)
+        setError(null)
+        setGender("")
     }
 
     function registrationUsernameCheck(event: InputEvent<HTMLInputElement>) {
-        if (!/^[a-zA-Z][a-zA-Z0-9-]{3,11}$/.test(event.currentTarget.value)) {
+        if (!/^[a-zA-Z][a-zA-Z0-9-]{2,11}$/.test(event.currentTarget.value)) {
             event.currentTarget.setCustomValidity(
                 "Username must be 4-12 characters, start with a letter, and contain only letters, numbers, and hyphens (-)"
             )
@@ -225,7 +248,7 @@ export default () => {
                                     </Field>
                                     <Field orientation="horizontal" className="flex flex-row justify-between">
                                         <Button type="submit">Submit</Button>
-                                        <Button type="button" variant="ghost" onClick={() => setIsRegistration(false)}>
+                                        <Button type="button" variant="ghost" onClick={changeTabs}>
                                             Already have an account? Login
                                         </Button>
                                     </Field>
@@ -297,7 +320,7 @@ export default () => {
                                     </Field>
                                     <Field orientation="horizontal" className="flex flex-row justify-between">
                                         <Button type="submit">Submit</Button>
-                                        <Button type="button" variant="ghost" onClick={() => setIsRegistration(true)}>
+                                        <Button type="button" variant="ghost" onClick={changeTabs}>
                                             Don't have an account? Register
                                         </Button>
                                     </Field>

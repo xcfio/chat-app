@@ -26,7 +26,7 @@ export const users = pgTable(
     },
     (table) => [
         check("password_length_check", sql`length(${table.password}) = 128`),
-        check("username_format_check", sql`${table.username} ~ '^[a-zA-Z][a-zA-Z0-9-]{3,11}$'`),
+        check("username_format_check", sql`${table.username} ~ '^[a-zA-Z][a-zA-Z0-9-]{2,11}$'`),
         check("email_format_check", sql`${table.email} ~ '^[^@]+@[^@]+\.[^@]+$'`)
     ]
 )

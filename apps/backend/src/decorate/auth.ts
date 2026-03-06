@@ -7,29 +7,31 @@ import Value from "typebox/value"
 export default async function auth(fastify: Awaited<ReturnType<typeof main>>) {
     fastify.decorate("auth", async function (request: FastifyRequest, reply: FastifyReply) {
         try {
-            const user = (await request.jwtVerify()) as Payload
+            const user = await request.jwtVerify()
 
             if (!Value.Check(Payload, user)) {
                 reply.clearCookie("auth", { path: "/", signed: true, sameSite: "strict" })
                 throw CreateError(401, "INVALID_TOKEN_PAYLOAD", "Invalid authentication token structure")
             }
 
-            request.user = user
+            request.payload = user
         } catch (error) {
             if (isFastifyError(error)) {
-                if (
-                    error.code === "FST_JWT_NO_AUTHORIZATION_IN_COOKIE" ||
-                    error.code === "FST_JWT_NO_AUTHORIZATION_IN_HEADER"
-                ) {
-                    throw CreateError(401, "NO_TOKEN", "Authentication token not provided")
-                }
+                if (process.env.NODE_ENV === "development") {
+                    if (
+                        error.code === "FST_JWT_NO_AUTHORIZATION_IN_COOKIE" ||
+                        error.code === "FST_JWT_NO_AUTHORIZATION_IN_HEADER"
+                    ) {
+                        throw CreateError(401, "NO_TOKEN", "Authentication token not provided")
+                    }
 
-                if (error.code === "FST_JWT_AUTHORIZATION_TOKEN_EXPIRED") {
-                    throw CreateError(401, "TOKEN_EXPIRED", "Authentication token has expired")
-                }
+                    if (error.code === "FST_JWT_AUTHORIZATION_TOKEN_EXPIRED") {
+                        throw CreateError(401, "TOKEN_EXPIRED", "Authentication token has expired")
+                    }
 
-                if (error.code === "FST_JWT_AUTHORIZATION_TOKEN_INVALID") {
-                    throw CreateError(401, "INVALID_TOKEN", "Invalid authentication token")
+                    if (error.code === "FST_JWT_AUTHORIZATION_TOKEN_INVALID") {
+                        throw CreateError(401, "INVALID_TOKEN", "Invalid authentication token")
+                    }
                 }
 
                 reply.clearCookie("auth", { path: "/", signed: true, sameSite: "strict" })

@@ -1,6 +1,6 @@
-import { cn } from "@/lib/utils"
 import { ThemeSwitcher } from "./theme-switcher"
-import Footer from "./footer"
+import { Footer } from "./footer"
+import { cn } from "@/lib/utils"
 
 export function Page({
     children,
@@ -11,12 +11,11 @@ export function Page({
     return (
         <>
             <main>
-                <ThemeSwitcher />
                 <div className={cn("min-h-full min-w-full", className)} {...prop}>
                     {children}
                 </div>
             </main>
-            {footer && <Footer />}
+            {footer ? <Footer /> : <ThemeSwitcher />}
         </>
     )
 }

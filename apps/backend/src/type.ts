@@ -1,3 +1,5 @@
+import { AuthenticatedSocket, Payload } from "schema"
+
 declare global {
     namespace NodeJS {
         interface ProcessEnv {
@@ -8,5 +10,15 @@ declare global {
             JWT_SECRET: string
             HMAC_SECRET: string
         }
+    }
+}
+
+declare module "fastify" {
+    interface FastifyInstance {
+        auth: (request: FastifyRequest, reply: FastifyReply) => void
+        io: AuthenticatedSocket
+    }
+    interface FastifyRequest {
+        payload: Payload
     }
 }
