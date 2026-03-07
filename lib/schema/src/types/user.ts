@@ -1,4 +1,4 @@
-import { Date, UUID } from "./utility"
+import { Date, Nullable, UUID } from "./utility"
 import { UserSelect } from "../table"
 import Type from "typebox"
 
@@ -20,7 +20,7 @@ export const PublicUser = Type.Object({
     id: UUID,
     name: UserSelect.properties.name,
     username: Type.String({ pattern: "^[a-zA-Z][a-zA-Z0-9-]{2,11}$" }),
-    avatar: Type.Optional(Type.String({ format: "uri" })),
+    avatar: Nullable(Type.String({ format: "uri" })),
     createdAt: Date
 })
 

@@ -1,19 +1,22 @@
-import { AuthenticatedUser, ErrorResponse } from "schema"
 import { CreateError, toTypeBox, xcf } from "../../function"
+import { ErrorResponse, PublicUser, UUID } from "schema"
 import { db, table } from "../../database"
-import { and, eq, isNull } from "drizzle-orm"
+import { Type } from "typebox"
+import { eq } from "drizzle-orm"
 import { main } from "../../"
 
-export default function Login(fastify: Awaited<ReturnType<typeof main>>) {
+export default function GetUserByID(fastify: Awaited<ReturnType<typeof main>>) {
     fastify.route({
         method: "GET",
-        url: "/auth/me",
+        url: "/users/:id",
         schema: {
-            description: "Authenticate user and initiate a session",
-            tags: ["Authentication"],
+            description: "Get specific user profile",
+            tags: ["Users"],
+            params: Type.Object({ id: UUID }),
             response: {
-                200: AuthenticatedUser,
-                404: ErrorResponse(404, "Not Found - User Not found"),
+                200: PublicUser,
+                401: ErrorResponse(401, "Unauthorized - authentication required"),
+                404: ErrorResponse(404, "Not found - User not found error"),
                 429: ErrorResponse(429, "Too many requests - rate limit exceeded"),
                 500: ErrorResponse(500, "Internal server error")
             }
@@ -21,11 +24,8 @@ export default function Login(fastify: Awaited<ReturnType<typeof main>>) {
         preHandler: fastify.auth,
         handler: async (request, reply) => {
             try {
-                const { id } = request.payload
-                const [user] = await db
-                    .select()
-                    .from(table.users)
-                    .where(and(isNull(table.users.ban), eq(table.users.id, id)))
+                const { id } = request.params
+                const [user] = await db.select().from(table.users).where(eq(table.users.id, id))
 
                 if (!user) throw CreateError(404, "USER_NOT_FOUND", "User not found")
                 return reply.status(200).send(toTypeBox(user))

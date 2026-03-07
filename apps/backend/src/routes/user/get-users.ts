@@ -1,0 +1,56 @@
+import { ErrorResponse, PublicUser } from "schema"
+import { and, or, ilike, desc } from "drizzle-orm"
+import { toTypeBox, xcf } from "../../function"
+import { db, table } from "../../database"
+import { Type } from "typebox"
+import { main } from "../../"
+
+export default function GetUsers(fastify: Awaited<ReturnType<typeof main>>) {
+    fastify.route({
+        method: "GET",
+        url: "/users",
+        schema: {
+            description: "Get list of all users",
+            tags: ["Users"],
+            querystring: Type.Object({
+                page: Type.Optional(Type.Integer({ default: 1, minimum: 1 })),
+                limit: Type.Optional(Type.Integer({ maximum: 100, minimum: 1 })),
+                search: Type.Optional(Type.String())
+            }),
+            response: {
+                200: Type.Array(PublicUser, { maxItems: 100, minItems: 1 }),
+                401: ErrorResponse(401, "Unauthorized - authentication required"),
+                429: ErrorResponse(429, "Too many requests - rate limit exceeded"),
+                500: ErrorResponse(500, "Internal server error")
+            }
+        },
+        preHandler: fastify.auth,
+        handler: async (request, reply) => {
+            try {
+                const { page = 1, limit = 20, search } = request.query
+                const conditions = []
+
+                if (search) {
+                    const il1 = ilike(table.users.username, `%${search}%`)
+                    const il2 = ilike(table.users.name, `%${search}%`)
+                    conditions.push(or(il1, il2))
+                }
+
+                const whereClause = conditions.length > 0 ? and(...conditions) : undefined
+                const offset = (page - 1) * limit
+
+                const user = await db
+                    .select()
+                    .from(table.users)
+                    .where(whereClause)
+                    .orderBy(desc(table.users.createdAt))
+                    .limit(limit)
+                    .offset(offset)
+
+                return reply.status(200).send(user.map((x) => toTypeBox(x)))
+            } catch (error) {
+                await xcf(error)
+            }
+        }
+    })
+}

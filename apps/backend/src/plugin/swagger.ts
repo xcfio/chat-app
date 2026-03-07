@@ -8,12 +8,8 @@ export default async function swagger(fastify: Awaited<ReturnType<typeof main>>)
         openapi: {
             openapi: "3.1.1",
             info: {
-                title: "API Documentation",
-                description: "",
-                version: version,
-                license: {
-                    name: "MIT"
-                }
+                title: "Chatly",
+                version: version
             }
         }
     })

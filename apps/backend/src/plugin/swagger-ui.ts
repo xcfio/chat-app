@@ -22,7 +22,6 @@ export default async function swagger_ui(fastify: Awaited<ReturnType<typeof main
             defaultModelExpandDepth: 1,
             supportedSubmitMethods: []
         },
-
         theme: {
             title: "API Documentation",
             css: [

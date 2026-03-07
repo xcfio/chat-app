@@ -14,13 +14,10 @@ export const messages = pgTable("messages", {
     sender: uuid("sender")
         .notNull()
         .references(() => users.id, { onDelete: "cascade" }),
-    receiver: uuid("receiver")
-        .notNull()
-        .references(() => users.id, { onDelete: "cascade" }),
     conversation: uuid("conversation")
         .notNull()
         .references(() => conversations.id, { onDelete: "cascade" }),
-    status: status("status").notNull().default("sent"),
+    status: status("status").array().notNull().default(["sent"]),
     createdAt: timestamp("created_at", { withTimezone: false })
         .notNull()
         .$defaultFn(() => new Date()),
