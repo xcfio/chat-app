@@ -12,6 +12,12 @@ const api = ky.create({
 })
 
 export const ftc = {
+    messages: {
+        send: async () => {},
+        seen: async () => {},
+        edit: async () => {},
+        delete: async () => {}
+    },
     login: async (obj: Static<typeof LoginUser>): Promise<Static<typeof AuthenticatedUser> | string> => {
         try {
             const data = await api.post("auth/login", { json: obj }).json<Static<typeof AuthenticatedUser>>()

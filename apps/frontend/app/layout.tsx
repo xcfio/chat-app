@@ -6,7 +6,7 @@ import "./globals.css"
 const comfortaa = Inter({ subsets: ["latin"], variable: "--font-sans" })
 
 export const metadata: Metadata = {
-    title: "chatio - Real-time Chat Application",
+    title: "Chatio - Real-time Chat Application",
     description: "Real-time chat application with Next.js and Socket.IO",
     icons: { icon: "/favicon.svg" }
 }
