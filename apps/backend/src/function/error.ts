@@ -1,5 +1,10 @@
-import create_error, { FastifyError } from "@fastify/error"
+import { DiscordAPIError } from "snowtransfer"
+import { FastifyError } from "@fastify/error"
 import { inspect } from "node:util"
+import create_error from "@fastify/error"
+import { ComponentType, MessageFlags, SeparatorSpacingSize } from "discord-api-types/v10"
+import { client } from "./discord"
+import { FrontendError } from "../type"
 
 /**
  * Type guard to check if a given error is a FastifyError.
@@ -83,16 +88,19 @@ export async function xcf<Throw extends boolean = true>(
     const error = givenError as NonNullable<Error>
     if (isFastifyError(error)) throw error
 
-    /*
-    if (!(error instanceof DiscordAPIError)) {
-        console.trace(error, origin)
+    if (error instanceof DiscordAPIError) return await handleDiscordAPIError<Throw>(error, shouldThrow)
+    if (error instanceof FrontendError) return await handleFrontendError<Throw>(error, shouldThrow)
+    console.trace(error, origin)
 
-        reply(type, "```js\n" + error.stack + "\n```")
-        if (ShouldThrow) throw CreateError(500, "INTERNAL_SERVER_ERROR", "Internal Server Error")
-        return null as Throw extends true ? never : null
-    }
-    */
+    await reply(type, "```js\n" + error.stack + "\n```")
+    if (shouldThrow) throw CreateError(500, "INTERNAL_SERVER_ERROR", "Internal Server Error")
+    return null as Throw extends true ? never : null
+}
 
+async function handleDiscordAPIError<Throw extends boolean = true>(
+    error: DiscordAPIError,
+    shouldThrow: boolean
+): Promise<Throw extends true ? never : null> {
     console.log(inspect(error, { depth: 10, colors: true }))
     console.log(error.stack)
 
@@ -106,14 +114,27 @@ export async function xcf<Throw extends boolean = true>(
         }
     }
 
-    // reply(`Discord API Error (${error.code})`, text)
+    await reply(`Discord API Error (${error.code})`, text)
     if (shouldThrow) throw CreateError(500, "INTERNAL_SERVER_ERROR", "Internal Server Error")
     return null as Throw extends true ? never : null
 }
 
-/*
+async function handleFrontendError<Throw extends boolean = true>(
+    error: FrontendError,
+    shouldThrow: boolean
+): Promise<Throw extends true ? never : null> {
+    await reply(
+        "Client Error - Received error from client socket",
+        "```json\n" + JSON.stringify(error, null, 4) + "\n```"
+    )
+    if (shouldThrow) throw CreateError(500, "INTERNAL_SERVER_ERROR", "Internal Server Error")
+    return null as Throw extends true ? never : null
+}
+
 async function reply(type: string, text: string) {
-    client.channel.createMessage(process.env.ERROR_LOG_CHANNEL, {
+    if (!client || !process.env.ERROR_LOG_CHANNEL) return
+
+    await client.channel.createMessage(process.env.ERROR_LOG_CHANNEL, {
         flags: MessageFlags.IsComponentsV2,
         components: [
             {
@@ -133,11 +154,10 @@ async function reply(type: string, text: string) {
                     },
                     {
                         type: ComponentType.TextDisplay,
-                        content: `-# Time: ${new Date().toUTCString()}`
+                        content: `-# Time: ${new Date().toUTCString()}\n-# Origin: [chatio](https://chatio-xcfio.vercel.app)`
                     }
                 ]
             }
         ]
     })
 }
-*/

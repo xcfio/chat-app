@@ -5,7 +5,7 @@ export default async function TypingStatusChanged(socket: Required<Authenticated
         try {
         } catch (error) {
             console.error(error)
-            socket.emit("error", { message: "Internal Server Error", code: "INTERNAL_SERVER_ERROR" })
+            socket.emit("errors", "Internal Server Error")
         }
     })
 }

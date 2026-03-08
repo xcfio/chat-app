@@ -4,6 +4,6 @@ export default async function UserStatusChanged(socket: Required<AuthenticatedSo
     try {
     } catch (error) {
         console.error(error)
-        socket.emit("error", { message: "Failed to update user status", code: "STATUS_UPDATE_ERROR" })
+        socket.emit("errors", "Internal Server Error")
     }
 }

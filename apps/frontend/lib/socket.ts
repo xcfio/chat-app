@@ -9,7 +9,7 @@ export function getSocket() {
     if (!socket) {
         socket = io(process.env.NEXT_PUBLIC_API_ENDPOINT || "http://localhost:7200", {
             withCredentials: true,
-            autoConnect: false
+            transports: ["websocket"]
         })
     }
     return socket

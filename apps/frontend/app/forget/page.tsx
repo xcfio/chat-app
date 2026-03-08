@@ -1,5 +1,3 @@
-"use client"
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Page } from "@/components/page"
 import { MailIcon } from "lucide-react"

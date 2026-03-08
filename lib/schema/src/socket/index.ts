@@ -1,24 +1,21 @@
-import { Static } from "typebox"
+import { Message, UUID } from "../types"
 import { UserSelect } from "../table"
 import { Socket } from "socket.io"
+import { Static } from "typebox"
 
 export interface ClientToServerEvents {
-    mark_as_read: (data: { chatId: string; messageIds: string[] }) => void
-    typing: (chatId: string, status: "started" | "stopped") => void
+    typing: (conversationId: Static<typeof UUID>, status: "started" | "stopped") => any
+    errors: ({ name, message, stack, cause }: { name: string; message: string; stack?: string; cause?: unknown }) => any
 }
 
-type Message = any
-type Notifications = any
-
 export interface ServerToClientEvents {
-    user_status_changed: (userId: string, status: "online" | "offline") => void
-    message_created: (message: Message) => void
-    message_edited: (message: Message) => void
-    message_deleted: (message: string) => void
-    messages_read: (data: { chatId: string; messageIds: string[]; readBy: string }) => void
-    typing: (userId: string, status: "started" | "stopped") => void
-    notification_created: (notification: Notifications) => void
-    error: (data: { message: string; code: string }) => void
+    status_changed: (userId: Static<typeof UUID>, status: "online" | "offline") => any
+    message_created: (message: Static<typeof Message>, conversationId: Static<typeof UUID>) => any
+    message_edited: (message: Static<typeof Message>, conversationId: Static<typeof UUID>) => any
+    message_deleted: (messageId: Static<typeof UUID>, conversationId: Static<typeof UUID>) => any
+    message_read: (messageId: Static<typeof UUID>, conversationId: Static<typeof UUID>) => any
+    typing: (userId: Static<typeof UUID>, conversationId: Static<typeof UUID>, status: "started" | "stopped") => any
+    errors: (message: string) => any
 }
 
 export interface AuthenticatedSocket extends Socket<ClientToServerEvents, ServerToClientEvents> {

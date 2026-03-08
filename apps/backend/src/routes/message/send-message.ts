@@ -27,37 +27,42 @@ export default function SendMessage(fastify: Awaited<ReturnType<typeof main>>) {
         handler: async (request, reply) => {
             try {
                 const { id: conversationId } = request.params
+                const { id: userId } = request.payload
                 const { content } = request.body
-                const user = request.payload
 
                 const trimmedContent = content.trim()
                 if (!trimmedContent) {
                     throw CreateError(400, "INVALID_CONTENT", "Message content cannot be empty")
                 }
 
-                const [conversation] = await db
+                const [conversations] = await db
                     .select()
                     .from(table.conversations)
                     .where(
                         and(
                             eq(table.conversations.id, conversationId),
-                            arrayContains(table.conversations.users, [user.id])
+                            arrayContains(table.conversations.users, [userId])
                         )
                     )
 
-                if (!conversation) {
+                if (!conversations) {
                     throw CreateError(404, "CONVERSATION_NOT_FOUND", "Conversation not found")
                 }
 
                 const [message] = await db
                     .insert(table.messages)
-                    .values({ content: trimmedContent, sender: user.id, conversation: conversation.id })
+                    .values({ content: trimmedContent, sender: userId, conversation: conversations.id })
                     .returning()
 
                 await db
                     .update(table.conversations)
                     .set({ updatedAt: new Date() })
                     .where(eq(table.conversations.id, conversationId))
+
+                if (fastify.io) {
+                    const toSend = conversations.users.filter((x) => x !== userId)
+                    fastify.io.to(toSend).emit("message_created", toTypeBox(message), conversations.id)
+                }
 
                 return reply.code(201).send(toTypeBox(message))
             } catch (error) {

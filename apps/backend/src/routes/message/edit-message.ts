@@ -50,6 +50,11 @@ export default function EditMessage(fastify: Awaited<ReturnType<typeof main>>) {
                     .where(and(eq(table.messages.id, id), eq(table.messages.sender, user.id)))
                     .returning()
 
+                if (fastify.io) {
+                    const toSend = conversations.users.filter((x) => x !== user.id)
+                    fastify.io.to(toSend).emit("message_edited", toTypeBox(updatedMessage), conversations.id)
+                }
+
                 return reply.code(200).send(toTypeBox(updatedMessage))
             } catch (error) {
                 await xcf(error)

@@ -8,6 +8,7 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Page } from "@/components/page"
+import { Catch } from "@/lib/catch"
 import { ftc } from "@/lib/fetch"
 
 import { AlertCircleIcon, CheckCircle2Icon, Eye, EyeOff } from "lucide-react"
@@ -31,75 +32,95 @@ export default () => {
     const [success, setSuccess] = useState<{ title: string; description: string } | null>(null)
 
     async function registrationSubmit(form: FormData) {
-        const data = Object.fromEntries(form.entries())
+        try {
+            const data = Object.fromEntries(form.entries())
 
-        if (!Value.Check(RegisterUser, data)) {
-            const errors = [...Value.Errors(RegisterUser, data)]
-            const message = errors.map((e: any) => `${e.path ?? "Form"}: ${e.message}`).join(", ")
-            setError({ title: "Validation failed", description: message })
-            return
-        }
+            if (!Value.Check(RegisterUser, data)) {
+                const errors = [...Value.Errors(RegisterUser, data)]
+                const message = errors.map((e: any) => `${e.path ?? "Form"}: ${e.message}`).join(", ")
+                setError({ title: "Validation failed", description: message })
+                return
+            }
 
-        const output = await ftc.register(data)
-        if (typeof output === "string") {
-            setError({ title: "Registration failed", description: output })
-            setSuccess(null)
-        } else {
-            window.sessionStorage.setItem("user", JSON.stringify(output))
-            setSuccess({ title: "Registration successful", description: `Welcome, ${output.name}! Redirecting...` })
-            setError(null)
-            setTimeout(() => router.push("/"), 2000)
+            const output = await ftc.register(data)
+            if (typeof output === "string") {
+                setError({ title: "Registration failed", description: output })
+                setSuccess(null)
+            } else {
+                window.sessionStorage.setItem("user", JSON.stringify(output))
+                setSuccess({ title: "Registration successful", description: `Welcome, ${output.name}! Redirecting...` })
+                setError(null)
+                setTimeout(() => router.push("/chat"), 2000)
+            }
+        } catch (error) {
+            Catch(error)
         }
     }
 
     async function loginSubmit(form: FormData) {
-        const data = Object.fromEntries(form.entries())
+        try {
+            const data = Object.fromEntries(form.entries())
 
-        if (!Value.Check(LoginUser, data)) {
-            const errors = [...Value.Errors(LoginUser, data)]
-            const message = errors.map((e: any) => `${e.path ?? "Form"}: ${e.message}`).join(", ")
-            setError({ title: "Validation failed", description: message })
-            return
-        }
+            if (!Value.Check(LoginUser, data)) {
+                const errors = [...Value.Errors(LoginUser, data)]
+                const message = errors.map((e: any) => `${e.path ?? "Form"}: ${e.message}`).join(", ")
+                setError({ title: "Validation failed", description: message })
+                return
+            }
 
-        const output = await ftc.login(data)
-        if (typeof output === "string") {
-            setError({ title: "Login failed", description: output })
-            setSuccess(null)
-        } else {
-            window.sessionStorage.setItem("user", JSON.stringify(output))
-            setSuccess({ title: "Login successful", description: `Welcome back, ${output.name}! Redirecting...` })
-            setError(null)
-            setTimeout(() => router.push("/"), 2000)
+            const output = await ftc.login(data)
+            if (typeof output === "string") {
+                setError({ title: "Login failed", description: output })
+                setSuccess(null)
+            } else {
+                window.sessionStorage.setItem("user", JSON.stringify(output))
+                setSuccess({ title: "Login successful", description: `Welcome back, ${output.name}! Redirecting...` })
+                setError(null)
+                setTimeout(() => router.push("/chat"), 2000)
+            }
+        } catch (error) {
+            Catch(error)
         }
     }
 
     function changeTabs() {
-        setIsRegistration(!isRegistration)
-        setSuccess(null)
-        setError(null)
-        setGender("")
+        try {
+            setIsRegistration(!isRegistration)
+            setSuccess(null)
+            setError(null)
+            setGender("")
+        } catch (error) {
+            Catch(error)
+        }
     }
 
     function registrationUsernameCheck(event: InputEvent<HTMLInputElement>) {
-        if (!/^[a-zA-Z][a-zA-Z0-9-]{2,11}$/.test(event.currentTarget.value)) {
-            event.currentTarget.setCustomValidity(
-                "Username must be 4-12 characters, start with a letter, and contain only letters, numbers, and hyphens (-)"
-            )
-        } else {
-            event.currentTarget.setCustomValidity("")
+        try {
+            if (!/^[a-zA-Z][a-zA-Z0-9-]{2,11}$/.test(event.currentTarget.value)) {
+                event.currentTarget.setCustomValidity(
+                    "Username must be 4-12 characters, start with a letter, and contain only letters, numbers, and hyphens (-)"
+                )
+            } else {
+                event.currentTarget.setCustomValidity("")
+            }
+        } catch (error) {
+            Catch(error)
         }
     }
 
     function registrationPasswordCheck(event: InputEvent<HTMLInputElement>) {
-        if (event.currentTarget.value !== passwordRef.current?.value) {
-            event.currentTarget.setCustomValidity("Passwords do not match")
-            passwordElement.current?.setAttribute("data-invalid", "true")
-            conformPasswordElement.current?.setAttribute("data-invalid", "true")
-        } else {
-            event.currentTarget.setCustomValidity("")
-            passwordElement.current?.setAttribute("data-invalid", "false")
-            conformPasswordElement.current?.setAttribute("data-invalid", "false")
+        try {
+            if (event.currentTarget.value !== passwordRef.current?.value) {
+                event.currentTarget.setCustomValidity("Passwords do not match")
+                passwordElement.current?.setAttribute("data-invalid", "true")
+                conformPasswordElement.current?.setAttribute("data-invalid", "true")
+            } else {
+                event.currentTarget.setCustomValidity("")
+                passwordElement.current?.setAttribute("data-invalid", "false")
+                conformPasswordElement.current?.setAttribute("data-invalid", "false")
+            }
+        } catch (error) {
+            Catch(error)
         }
     }
 

@@ -1,7 +1,7 @@
 import { CreateError, xcf } from "../../function"
 import { ErrorResponse, UUID } from "schema"
 import { db, table } from "../../database"
-import { eq } from "drizzle-orm"
+import { and, eq } from "drizzle-orm"
 import { Type } from "typebox"
 import { main } from "../../"
 
@@ -15,7 +15,7 @@ export default function ReadMessage(fastify: Awaited<ReturnType<typeof main>>) {
             params: Type.Object({ id: UUID }),
             response: {
                 200: Type.Object({ success: Type.Boolean() }),
-                400: ErrorResponse(400, "Bad request - message already read"),
+                400: ErrorResponse(400, "Bad request - message cannot be marked as read"),
                 401: ErrorResponse(401, "Unauthorized - authentication required"),
                 404: ErrorResponse(404, "Not found - Message not found error"),
                 429: ErrorResponse(429, "Too many requests - rate limit exceeded"),
@@ -26,12 +26,13 @@ export default function ReadMessage(fastify: Awaited<ReturnType<typeof main>>) {
         handler: async (request, reply) => {
             try {
                 const { id } = request.params
+                const { id: userId } = request.payload
 
                 const [{ messages, conversations }] = await db
                     .select()
                     .from(table.messages)
                     .leftJoin(table.conversations, eq(table.conversations.id, table.messages.conversation))
-                    .where(eq(table.messages.id, id))
+                    .where(and(eq(table.messages.id, id)))
 
                 if (!messages || !conversations || messages.status.includes("deleted")) {
                     throw CreateError(404, "MESSAGE_NOT_FOUND", "Message not found")
@@ -41,10 +42,20 @@ export default function ReadMessage(fastify: Awaited<ReturnType<typeof main>>) {
                     throw CreateError(400, "MESSAGE_ALREADY_READ", "Message is already marked as read")
                 }
 
-                await db
+                if (messages.sender === userId) {
+                    throw CreateError(400, "CANNOT_MARK_OWN_MESSAGE", "Cannot mark your own message as read")
+                }
+
+                const [updatedMessage] = await db
                     .update(table.messages)
                     .set({ status: [...messages.status, "read"] })
                     .where(eq(table.messages.id, id))
+                    .returning()
+
+                if (fastify.io) {
+                    const toSend = conversations.users.filter((x) => x !== userId)
+                    fastify.io.to(toSend).emit("message_read", updatedMessage.id, updatedMessage.conversation)
+                }
 
                 return reply.code(200).send({ success: true })
             } catch (error) {

@@ -42,6 +42,11 @@ export default function DeleteMessage(fastify: Awaited<ReturnType<typeof main>>)
                     .set({ status: [...messages.status, "deleted"] })
                     .where(and(eq(table.messages.id, msgId), eq(table.messages.sender, userId)))
 
+                if (fastify.io) {
+                    const toSend = conversations.users.filter((x) => x !== userId)
+                    fastify.io.to(toSend).emit("message_deleted", msgId, conversations.id)
+                }
+
                 return reply.code(200).send({ success: true })
             } catch (error) {
                 await xcf(error)

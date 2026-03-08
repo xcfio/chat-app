@@ -8,6 +8,7 @@ import Plugin from "./plugin"
 import Socket from "./socket"
 import Fastify from "fastify"
 import Hooks from "./hooks"
+import * as _ from "./type"
 
 export let io: AuthenticatedSocket
 export async function main() {
