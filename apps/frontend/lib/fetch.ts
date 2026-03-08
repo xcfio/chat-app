@@ -14,7 +14,7 @@ const api = ky.create({
 export const ftc = {
     messages: {
         send: async () => {},
-        seen: async () => {},
+        read: async () => {},
         edit: async () => {},
         delete: async () => {}
     },
