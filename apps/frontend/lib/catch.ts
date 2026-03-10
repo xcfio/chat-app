@@ -2,18 +2,17 @@
 
 import { getSocket } from "./socket"
 
-export function Catch(error: unknown) {
-    console.error(error)
+export async function Catch(inputtedError: unknown) {
+    console.log(inputtedError)
 
     const socket = getSocket()
-    socket.connect()
+    const error: Error = Error.isError(inputtedError)
+        ? inputtedError
+        : new Error(typeof inputtedError === "string" ? inputtedError : JSON.stringify(inputtedError))
 
-    if (!socket.connected) socket.connect()
-    socket.on("connect", () => {
-        if (Error.isError(error)) {
-            socket.emit("errors", { name: error.name, message: error.message, stack: error.stack })
-        } else {
-            socket.emit("errors", { name: "An unexpected error occurred", message: JSON.stringify(error) })
-        }
+    socket.emit("errors", {
+        name: `Client Error (${new Date().getTime().toString(36)})`,
+        message: error.message,
+        stack: error.stack
     })
 }

@@ -31,13 +31,19 @@ export default function GetMessages(fastify: Awaited<ReturnType<typeof main>>) {
         preHandler: fastify.auth,
         handler: async (request, reply) => {
             try {
+                const { id: userId } = request.payload
                 const { id: conversationId } = request.params
                 const { page = 1, limit = 50, before, after } = request.query
 
                 const [conversation] = await db
                     .select()
                     .from(table.conversations)
-                    .where(eq(table.conversations.id, conversationId))
+                    .where(
+                        and(
+                            eq(table.conversations.id, conversationId),
+                            arrayContains(table.conversations.users, [userId])
+                        )
+                    )
 
                 if (!conversation) {
                     throw CreateError(404, "CONVERSATION_NOT_FOUND", "Conversation not found")

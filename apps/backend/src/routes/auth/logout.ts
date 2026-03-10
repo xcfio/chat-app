@@ -9,7 +9,7 @@ export default function Logout(fastify: Awaited<ReturnType<typeof main>>) {
         url: "/auth/logout",
         schema: {
             description: "Logout user and clear authentication",
-            tags: ["Sessions"],
+            tags: ["Authentication"],
             response: {
                 200: Type.Object({ success: Type.Boolean() }),
                 401: ErrorResponse(401, "Unauthorized - authentication required"),

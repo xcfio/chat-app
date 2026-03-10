@@ -8,12 +8,13 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Page } from "@/components/page"
+import { getSocket } from "@/lib/socket"
 import { Catch } from "@/lib/catch"
 import { ftc } from "@/lib/fetch"
 
 import { AlertCircleIcon, CheckCircle2Icon, Eye, EyeOff } from "lucide-react"
-import { InputEvent, useRef, useState } from "react"
-import { LoginUser, RegisterUser } from "schema"
+import { AuthenticatedUser, LoginUser, RegisterUser } from "schema"
+import { InputEvent, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Value } from "typebox/value"
 
@@ -31,6 +32,26 @@ export default () => {
     const [error, setError] = useState<{ title: string; description: string } | null>(null)
     const [success, setSuccess] = useState<{ title: string; description: string } | null>(null)
 
+    const getUser = async () => {
+        const user = window.sessionStorage.getItem("user")
+        if (user) {
+            router.push("/chat")
+            return
+        }
+
+        const me = await ftc.auth.me()
+        if (Value.Check(AuthenticatedUser, me)) {
+            window.sessionStorage.setItem("user", JSON.stringify(me))
+            router.push("/chat")
+            return
+        }
+
+        getSocket()
+    }
+    useEffect(() => {
+        getUser()
+    }, [])
+
     async function registrationSubmit(form: FormData) {
         try {
             const data = Object.fromEntries(form.entries())
@@ -42,7 +63,7 @@ export default () => {
                 return
             }
 
-            const output = await ftc.register(data)
+            const output = await ftc.auth.register(data)
             if (typeof output === "string") {
                 setError({ title: "Registration failed", description: output })
                 setSuccess(null)
@@ -68,7 +89,7 @@ export default () => {
                 return
             }
 
-            const output = await ftc.login(data)
+            const output = await ftc.auth.login(data)
             if (typeof output === "string") {
                 setError({ title: "Login failed", description: output })
                 setSuccess(null)

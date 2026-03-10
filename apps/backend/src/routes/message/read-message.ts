@@ -1,7 +1,7 @@
+import { and, arrayContains, eq } from "drizzle-orm"
 import { CreateError, xcf } from "../../function"
 import { ErrorResponse, UUID } from "schema"
 import { db, table } from "../../database"
-import { and, eq } from "drizzle-orm"
 import { Type } from "typebox"
 import { main } from "../../"
 
@@ -32,7 +32,7 @@ export default function ReadMessage(fastify: Awaited<ReturnType<typeof main>>) {
                     .select()
                     .from(table.messages)
                     .leftJoin(table.conversations, eq(table.conversations.id, table.messages.conversation))
-                    .where(and(eq(table.messages.id, id)))
+                    .where(and(eq(table.messages.id, id), arrayContains(table.conversations.users, [userId])))
 
                 if (!messages || !conversations || messages.status.includes("deleted")) {
                     throw CreateError(404, "MESSAGE_NOT_FOUND", "Message not found")

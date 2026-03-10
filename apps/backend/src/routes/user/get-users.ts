@@ -18,7 +18,7 @@ export default function GetUsers(fastify: Awaited<ReturnType<typeof main>>) {
                 search: Type.Optional(Type.String())
             }),
             response: {
-                200: Type.Array(PublicUser, { maxItems: 100, minItems: 1 }),
+                200: Type.Array(PublicUser, { maxItems: 100, minItems: 0 }),
                 401: ErrorResponse(401, "Unauthorized - authentication required"),
                 429: ErrorResponse(429, "Too many requests - rate limit exceeded"),
                 500: ErrorResponse(500, "Internal server error")

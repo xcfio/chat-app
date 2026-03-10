@@ -1,4 +1,3 @@
-// This chatio
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox"
 import { ValidationErrorHandler, xcf } from "./function"
 import { AuthenticatedSocket } from "schema"

@@ -10,7 +10,7 @@ export function getSocket() {
         socket = io(process.env.NEXT_PUBLIC_API_ENDPOINT || "http://localhost:7200", {
             withCredentials: true,
             transports: ["websocket"]
-        })
+        }).connect()
     }
     return socket
 }

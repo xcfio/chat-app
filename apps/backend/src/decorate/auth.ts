@@ -3,6 +3,7 @@ import { FastifyRequest, FastifyReply } from "fastify"
 import { Payload } from "schema"
 import { main } from "../"
 import Value from "typebox/value"
+import { AssertionError } from "assert"
 
 export default async function auth(fastify: Awaited<ReturnType<typeof main>>) {
     fastify.decorate("auth", async function (request: FastifyRequest, reply: FastifyReply) {
@@ -16,28 +17,12 @@ export default async function auth(fastify: Awaited<ReturnType<typeof main>>) {
 
             request.payload = user
         } catch (error) {
-            if (isFastifyError(error)) {
-                if (process.env.NODE_ENV === "development") {
-                    if (
-                        error.code === "FST_JWT_NO_AUTHORIZATION_IN_COOKIE" ||
-                        error.code === "FST_JWT_NO_AUTHORIZATION_IN_HEADER"
-                    ) {
-                        throw CreateError(401, "NO_TOKEN", "Authentication token not provided")
-                    }
-
-                    if (error.code === "FST_JWT_AUTHORIZATION_TOKEN_EXPIRED") {
-                        throw CreateError(401, "TOKEN_EXPIRED", "Authentication token has expired")
-                    }
-
-                    if (error.code === "FST_JWT_AUTHORIZATION_TOKEN_INVALID") {
-                        throw CreateError(401, "INVALID_TOKEN", "Invalid authentication token")
-                    }
-                }
-
+            if (isFastifyError(error) || AssertionError.isError(error)) {
                 reply.clearCookie("auth", { path: "/", signed: true, sameSite: "strict" })
                 throw CreateError(401, "AUTHENTICATION_FAILED", "Authentication failed")
             } else {
                 console.trace(error)
+                reply.clearCookie("auth", { path: "/", signed: true, sameSite: "strict" })
                 throw CreateError(500, "INTERNAL_SERVER_ERROR", "Internal Server Error")
             }
         }
