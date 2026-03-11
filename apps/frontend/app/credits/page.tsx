@@ -1,7 +1,20 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Heart, Github, ExternalLink } from "lucide-react"
 import { Link } from "@/components/ui/link"
 import { Page } from "@/components/page"
-import { Heart, Github, ExternalLink } from "lucide-react"
+
+const tools = [
+    { name: "Fastify", desc: "Backend framework", url: "https://fastify.dev" },
+    { name: "Next.js", desc: "Frontend framework", url: "https://nextjs.org" },
+    { name: "PostgreSQL", desc: "Database", url: "https://www.postgresql.org" },
+    { name: "Drizzle ORM", desc: "Database ORM", url: "https://orm.drizzle.team" },
+    { name: "TypeScript", desc: "Type safety", url: "https://typescriptlang.org" },
+    { name: "Typebox", desc: "Schema validation", url: "https://www.npmjs.com/package/typebox" },
+    { name: "Socket.IO", desc: "Real-time communication", url: "https://socket.io" },
+    { name: "Shadcn UI", desc: "UI primitives", url: "https://ui.shadcn.com/" },
+    { name: "Tailwind CSS", desc: "Styling", url: "https://tailwindcss.com" },
+    { name: "Turborepo", desc: "Monorepo tooling", url: "https://turbo.build" }
+]
 
 export default function CreditsPage() {
     return (
@@ -48,16 +61,7 @@ export default function CreditsPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="grid gap-3 md:grid-cols-2">
-                            {[
-                                { name: "Next.js", desc: "React framework", url: "https://nextjs.org" },
-                                { name: "Fastify", desc: "Backend framework", url: "https://fastify.dev" },
-                                { name: "Socket.IO", desc: "Real-time communication", url: "https://socket.io" },
-                                { name: "Drizzle ORM", desc: "Database ORM", url: "https://orm.drizzle.team" },
-                                { name: "Tailwind CSS", desc: "Styling", url: "https://tailwindcss.com" },
-                                { name: "TypeScript", desc: "Type safety", url: "https://typescriptlang.org" },
-                                { name: "Radix UI", desc: "UI primitives", url: "https://radix-ui.com" },
-                                { name: "Turborepo", desc: "Monorepo tooling", url: "https://turbo.build" }
-                            ].map(({ name, desc, url }) => (
+                            {tools.map(({ name, desc, url }) => (
                                 <Link
                                     key={name}
                                     href={url}

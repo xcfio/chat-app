@@ -32,7 +32,7 @@ function MinWidth768() {
 }
 
 function MaxWidth768() {
-    const [isChat, setIsChat] = useState(true)
+    const [isChat, setIsChat] = useState(false)
 
     return (
         <Page footer={false} className="block md:hidden h-screen w-screen">
