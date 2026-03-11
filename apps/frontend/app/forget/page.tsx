@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ArrowLeft, MailIcon } from "lucide-react"
 import { Page } from "@/components/page"
-import { MailIcon } from "lucide-react"
+import Link from "next/link"
 
 export default () => {
     return (
@@ -8,7 +9,12 @@ export default () => {
             <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-5">
                 <Card className="w-full max-w-md">
                     <CardHeader>
-                        <CardTitle>Forgot Password</CardTitle>
+                        <CardTitle className="flex flex-row gap-2 items-center">
+                            <Link href="/">
+                                <ArrowLeft className="h-4 w-4 mt-0.5" />
+                            </Link>
+                            Forgot Password
+                        </CardTitle>
                         <CardDescription>We don't have an automated password reset system yet.</CardDescription>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-3">

@@ -2,9 +2,10 @@
 
 import { Github, MessageCircle, HelpCircle, Star, SunIcon, MoonIcon, MonitorIcon, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useTheme } from "next-themes"
-import Link from "next/link"
 import { useEffect, useState } from "react"
+import { Link } from "@/components/ui/link"
+import NextLink from "next/link"
+import { useTheme } from "next-themes"
 
 export function Footer() {
     const { theme, setTheme } = useTheme()
@@ -18,12 +19,12 @@ export function Footer() {
                     {/* Brand */}
                     <div className="max-w-sm">
                         <h3 className="text-2xl font-bold mb-2">
-                            <Link
+                            <NextLink
                                 href="/"
                                 className="bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent max-w-36"
                             >
                                 Chatio
-                            </Link>
+                            </NextLink>
                         </h3>
                         <p className="text-muted-foreground leading-relaxed text-sm">
                             A modern real-time chat app built for simplicity. Connect with anyone, anywhere.
@@ -34,24 +35,22 @@ export function Footer() {
                     <div>
                         <h4 className="text-base font-semibold text-foreground mb-2">Quick Links</h4>
                         <div className="flex flex-col">
-                            <Button
+                            <Link
+                                href="/support"
                                 variant="ghost"
                                 className="justify-start gap-3 p-2 h-auto text-muted-foreground hover:text-foreground max-w-36"
-                                asChild
+                                aria-label="Get Support"
                             >
-                                <Link href="/support" aria-label="Get Support">
-                                    <HelpCircle className="h-5 w-5 shrink-0" /> Support
-                                </Link>
-                            </Button>
-                            <Button
+                                <HelpCircle className="h-5 w-5 shrink-0" /> Support
+                            </Link>
+                            <Link
+                                href="/credits"
                                 variant="ghost"
                                 className="justify-start gap-3 p-2 h-auto text-muted-foreground hover:text-foreground max-w-36"
-                                asChild
+                                aria-label="View Credits"
                             >
-                                <Link href="/credits" aria-label="View Credits">
-                                    <Star className="h-5 w-5 shrink-0" /> Credits
-                                </Link>
-                            </Button>
+                                <Star className="h-5 w-5 shrink-0" /> Credits
+                            </Link>
                         </div>
                     </div>
 
@@ -59,34 +58,26 @@ export function Footer() {
                     <div>
                         <h4 className="text-base font-semibold text-foreground mb-2">Connect</h4>
                         <div className="flex flex-col">
-                            <Button
+                            <Link
+                                href="https://github.com/xcfio/chat-app"
                                 variant="ghost"
                                 className="justify-start gap-3 p-2 h-auto text-muted-foreground hover:text-foreground max-w-36"
-                                asChild
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="GitHub Repository"
                             >
-                                <Link
-                                    href="https://github.com/xcfio/chat-app"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    aria-label="GitHub Repository"
-                                >
-                                    <Github className="h-5 w-5 shrink-0" /> GitHub
-                                </Link>
-                            </Button>
-                            <Button
+                                <Github className="h-5 w-5 shrink-0" /> GitHub
+                            </Link>
+                            <Link
+                                href="https://discord.com/invite/FaCCaFM74Q"
                                 variant="ghost"
                                 className="justify-start gap-3 p-2 h-auto text-muted-foreground hover:text-foreground max-w-36"
-                                asChild
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="Discord Server"
                             >
-                                <Link
-                                    href="https://discord.com/invite/FaCCaFM74Q"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    aria-label="Discord Server"
-                                >
-                                    <MessageCircle className="h-5 w-5 shrink-0" /> Discord
-                                </Link>
-                            </Button>
+                                <MessageCircle className="h-5 w-5 shrink-0" /> Discord
+                            </Link>
                         </div>
                     </div>
 
@@ -121,7 +112,8 @@ export function Footer() {
                         © {new Date().getFullYear()} Omar Faruk. See{" "}
                         <Link
                             href="/credits"
-                            className="underline underline-offset-4 hover:text-foreground transition-colors"
+                            variant="link"
+                            className="h-auto p-0 text-muted-foreground hover:text-foreground"
                         >
                             Credits
                         </Link>

@@ -1,0 +1,111 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Link } from "@/components/ui/link"
+import { Page } from "@/components/page"
+import { Heart, Github, ExternalLink } from "lucide-react"
+
+export default function CreditsPage() {
+    return (
+        <Page className="flex flex-col items-center justify-center px-4 py-16">
+            <div className="max-w-3xl w-full space-y-8">
+                <div className="text-center space-y-2">
+                    <h1 className="text-4xl font-bold">Credits</h1>
+                    <p className="text-muted-foreground text-lg">
+                        Chatio is made possible by these amazing projects and people.
+                    </p>
+                </div>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Heart className="h-5 w-5 text-red-500" />
+                            Created By
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="font-semibold">Omar Faruk</p>
+                                <p className="text-muted-foreground text-sm">Lead Developer</p>
+                            </div>
+                            <Link
+                                href="https://github.com/xcfio"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                variant="outline"
+                                size="sm"
+                            >
+                                <Github className="h-4 w-4" />
+                                GitHub
+                            </Link>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Technologies</CardTitle>
+                        <CardDescription>The core technologies powering Chatio</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid gap-3 md:grid-cols-2">
+                            {[
+                                { name: "Next.js", desc: "React framework", url: "https://nextjs.org" },
+                                { name: "Fastify", desc: "Backend framework", url: "https://fastify.dev" },
+                                { name: "Socket.IO", desc: "Real-time communication", url: "https://socket.io" },
+                                { name: "Drizzle ORM", desc: "Database ORM", url: "https://orm.drizzle.team" },
+                                { name: "Tailwind CSS", desc: "Styling", url: "https://tailwindcss.com" },
+                                { name: "TypeScript", desc: "Type safety", url: "https://typescriptlang.org" },
+                                { name: "Radix UI", desc: "UI primitives", url: "https://radix-ui.com" },
+                                { name: "Turborepo", desc: "Monorepo tooling", url: "https://turbo.build" }
+                            ].map(({ name, desc, url }) => (
+                                <Link
+                                    key={name}
+                                    href={url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    variant="ghost"
+                                    className="justify-between h-auto p-3 text-left"
+                                >
+                                    <div>
+                                        <p className="font-medium">{name}</p>
+                                        <p className="text-muted-foreground text-xs">{desc}</p>
+                                    </div>
+                                    <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                                </Link>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Open Source</CardTitle>
+                        <CardDescription>Chatio is open source and available under the MIT License</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <p className="text-sm text-muted-foreground">
+                            We believe in the power of open source software. Chatio&apos;s source code is freely
+                            available for anyone to view, modify, and contribute to.
+                        </p>
+                        <Link
+                            href="https://github.com/xcfio/chat-app"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full"
+                        >
+                            <Github className="h-4 w-4" />
+                            View on GitHub
+                        </Link>
+                    </CardContent>
+                </Card>
+
+                <div className="text-center text-muted-foreground text-sm">
+                    <p>
+                        Special thanks to all contributors and the open source community for making this project
+                        possible.
+                    </p>
+                </div>
+            </div>
+        </Page>
+    )
+}
