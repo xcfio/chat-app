@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import { ThemeProvider } from "next-themes"
+import Script from "next/script"
 import "./globals.css"
 
 const comfortaa = Inter({ subsets: ["latin"], variable: "--font-sans" })
@@ -16,6 +17,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <html lang="en" suppressHydrationWarning>
             <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
             <head>
+                {process.env.NODE_ENV !== "development" && (
+                    <script
+                        defer
+                        src="https://cool-xcfio.vercel.app/script.js"
+                        data-website-id="7254c75e-d3bd-4c9a-ac98-dc5e45dde948"
+                    ></script>
+                )}
                 <script
                     dangerouslySetInnerHTML={{
                         __html: `
